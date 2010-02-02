@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Expsetup!</string>
+    <string name="app_name">GUSTO</string>
+
+<integer-array name="cpu_freqs"><item>128000</item>
+<item>245760</item>
+<item>384000</item>
+<item>528000</item>
+</integer-array>
+<string-array name="cpu_freqs_str"><item>128000</item>
+<item>245760</item>
+<item>384000</item>
+<item>528000</item>
+
+</string-array>
+</resources>
