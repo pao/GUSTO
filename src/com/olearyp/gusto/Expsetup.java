@@ -73,26 +73,27 @@ public class Expsetup extends PreferenceActivity {
 	private Map<String, String> getCurrentConfig() {
 		HashMap<String, String> config = new HashMap<String, String>();
 		// Read in the config file & parse it
-//		BufferedReader rd;
-//		try {
-//			// Can't read this file right now
-//			rd = new BufferedReader(new FileReader("/system/bin/exp.config"));
-//			String line = rd.readLine();
-//			while (line != null) {
-//				String[] parts = line.split("=");
-//				if (parts.length == 2) {
-//					config.put(parts[0], parts[1].substring(1, parts[1]
-//							.length() - 1));
-//				}
-//			}
-//			rd.close();
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		BufferedReader rd;
+		try {
+			// Can't read this file right now
+			rd = new BufferedReader(new FileReader("/system/bin/exp.config"));
+			String line = rd.readLine();
+			while (line != null) {
+				String[] parts = line.split("=");
+				if (parts.length == 2) {
+					config.put(parts[0], parts[1].substring(1, parts[1]
+							.length() - 1));
+				}
+				line = rd.readLine();
+			}
+			rd.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// Then check the theme profile settings
 		return config;
