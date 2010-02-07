@@ -3,11 +3,15 @@ package com.olearyp.gusto;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -27,77 +31,21 @@ public class Expsetup extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		Map<String, String> conf = getCurrentConfig();
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						/*
-						 * TODO Set the process up when the activity is started
-						 * as a separate thread and route function calls to it,
-						 * preventing the underlying shell from having to reload
-						 * the .lib file
-						 */
-
 						SuServer s = new SuServer() {
-							// We want custom behavior here to email the log
 							@Override
 							protected void onPostExecute(Void result) {
-								// Check for log files on sdcard
-								String logfiles[] = Environment
-										.getExternalStorageDirectory().list(
-												new FilenameFilter() {
-
-													@Override
-													public boolean accept(
-															File dir,
-															String filename) {
-														return filename
-																.startsWith("ep_log_")
-																&& filename
-																		.endsWith(".log");
-													}
-												});
+								String logfiles[] = getEpLogs();
 								Arrays.sort(logfiles);
-
-								// rabzgure is going to love me forever
-								Intent sendIntent = new Intent(
-										Intent.ACTION_SEND);
-								sendIntent.setType("text/plain");
-								sendIntent
-										.putExtra(
-												Intent.EXTRA_EMAIL,
-												new String[] { decode_address("cngevpx.byrnel")
-														+ "@"
-														+ decode_address("tznvy.pbz") });
-								sendIntent.putExtra(Intent.EXTRA_SUBJECT,
-										"ep_log report from user");
-								sendIntent
-										.putExtra(
-												Intent.EXTRA_STREAM,
-												Uri
-														.parse("file:///sdcard/"
-																+ logfiles[logfiles.length - 1]));
-								startActivity(Intent.createChooser(sendIntent,
-										"Send ep_log via..."));
+								sendFile(logfiles[logfiles.length - 1]);
 								super.onPostExecute(result);
-							}
-
-							private String decode_address(String string) {
-								StringBuffer tempReturn = new StringBuffer();
-								for (int i = 0; i < string.length(); i++) {
-									int abyte = string.charAt(i);
-									int cap = abyte & 32;
-									abyte &= ~cap;
-									abyte = ((abyte >= 'A') && (abyte <= 'Z') ? ((abyte - 'A' + 13) % 26 + 'A')
-											: abyte)
-											| cap;
-									tempReturn.append((char) abyte);
-								}
-								return tempReturn.toString();
 							}
 						};
 						s.execute("gen_ep_logfile");
-
 						return true;
 					}
 				});
@@ -120,6 +68,73 @@ public class Expsetup extends PreferenceActivity {
 				new ExpPreferenceChangeListener("yes | toggle_ep_linuxswap"));
 		findPreference("userinit").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
+	}
+
+	private Map<String, String> getCurrentConfig() {
+		HashMap<String, String> config = new HashMap<String, String>();
+		// Read in the config file & parse it
+//		BufferedReader rd;
+//		try {
+//			// Can't read this file right now
+//			rd = new BufferedReader(new FileReader("/system/bin/exp.config"));
+//			String line = rd.readLine();
+//			while (line != null) {
+//				String[] parts = line.split("=");
+//				if (parts.length == 2) {
+//					config.put(parts[0], parts[1].substring(1, parts[1]
+//							.length() - 1));
+//				}
+//			}
+//			rd.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		// Then check the theme profile settings
+		return config;
+	}
+
+	private String[] getEpLogs() {
+		return Environment.getExternalStorageDirectory().list(
+				new FilenameFilter() {
+
+					@Override
+					public boolean accept(File dir, String filename) {
+						return filename.startsWith("ep_log_")
+								&& filename.endsWith(".log");
+					}
+				});
+	}
+
+	private String decode_address(String string) {
+		StringBuffer tempReturn = new StringBuffer();
+		for (int i = 0; i < string.length(); i++) {
+			int abyte = string.charAt(i);
+			int cap = abyte & 32;
+			abyte &= ~cap;
+			abyte = ((abyte >= 'A') && (abyte <= 'Z') ? ((abyte - 'A' + 13) % 26 + 'A')
+					: abyte)
+					| cap;
+			tempReturn.append((char) abyte);
+		}
+		return tempReturn.toString();
+	}
+
+	private void sendFile(String logfile) {
+		// rabzgure is going to love me forever
+		Intent sendIntent = new Intent(Intent.ACTION_SEND);
+		sendIntent.setType("text/plain");
+		sendIntent.putExtra(Intent.EXTRA_EMAIL,
+				new String[] { decode_address("rabzgure") + "@"
+						+ decode_address("tznvy.pbz") });
+		sendIntent.putExtra(Intent.EXTRA_SUBJECT, "ep_log report from user");
+		sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/"
+				+ logfile));
+		startActivity(Intent.createChooser(sendIntent, "Send ep_log via..."));
 	}
 
 	private final class ExpPreferenceChangeListener implements
@@ -148,8 +163,8 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		protected void onPreExecute() {
-			pd = ProgressDialog.show(Expsetup.this, "Working", "ORLY?", true,
-					false);
+			pd = ProgressDialog.show(Expsetup.this, "Working",
+					"Starting process...", true, false);
 		}
 
 		@Override
