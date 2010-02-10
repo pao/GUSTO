@@ -2,9 +2,9 @@
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android" android:title="GUSTO: GUI Used to Setup TheOfficial">
 
-<PreferenceScreen android:title="CPU options" android:key="cpu_opts"><CheckBoxPreference android:title="Frequency sampler" android:summaryOff="Normal" android:key="freq_sample" android:summaryOn="Cyanogenized"></CheckBoxPreference><ListPreference android:title="Min CPU frequency" android:dialogTitle="Set minimum CPU frequency" android:entryValues="@array/cpu_freqs" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_min"></ListPreference><ListPreference android:title="Max CPU frequency" android:dialogMessage="Set maximum CPU frequency" android:entries="@array/cpu_freqs_str" android:entryValues="@array/cpu_freqs" android:key="cpu_freq_max"></ListPreference></PreferenceScreen><EditTextPreference android:title="Swappiness" android:dialogTitle="Set swappiness" android:key="swappiness"></EditTextPreference><CheckBoxPreference android:title="Compcache" android:summaryOn="Use compcache" android:summaryOff="Do not use compcache" android:key="compcache"></CheckBoxPreference><CheckBoxPreference android:title="Linux Swap" android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled" android:key="linux_swap"></CheckBoxPreference>
-<CheckBoxPreference android:title="User init script" android:summaryOn="Run userinit.sh at startup" android:summaryOff="Do not run userinit.sh at startup" android:key="userinit"></CheckBoxPreference>
-<Preference android:title="Generate ep_log" android:key="ep_log"></Preference>
+<PreferenceScreen android:title="CPU options" android:key="cpu_opts"><CheckBoxPreference android:title="Frequency sampler" android:summaryOff="Normal" android:key="freq_sample" android:summaryOn="Cyanogenized" android:persistent="false"></CheckBoxPreference><ListPreference android:title="Min CPU frequency" android:dialogTitle="Set minimum CPU frequency" android:entryValues="@array/cpu_freqs" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_min" android:persistent="false"></ListPreference><ListPreference android:title="Max CPU frequency" android:dialogMessage="Set maximum CPU frequency" android:entries="@array/cpu_freqs_str" android:entryValues="@array/cpu_freqs" android:key="cpu_freq_max" android:persistent="false"></ListPreference></PreferenceScreen><EditTextPreference android:title="Swappiness" android:dialogTitle="Set swappiness" android:key="swappiness" android:persistent="false"></EditTextPreference><CheckBoxPreference android:title="Compcache" android:summaryOn="Use compcache" android:summaryOff="Do not use compcache" android:key="compcache" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="Linux Swap" android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled" android:key="linux_swap" android:persistent="false"></CheckBoxPreference>
+<CheckBoxPreference android:title="User init script" android:summaryOn="Run userinit.sh at startup" android:summaryOff="Do not run userinit.sh at startup" android:key="userinit" android:persistent="false"></CheckBoxPreference>
+<Preference android:title="Generate ep_log" android:key="ep_log" android:persistent="false"></Preference>
 
 
 
@@ -13,10 +13,10 @@
 
 
 
-<PreferenceScreen android:title="Theme profile"><CheckBoxPreference android:title="Launcher" android:summaryOn="irrenhaus/rogro82 Advanced Launcher" android:summaryOff="enom's 5-screen standard launcher" android:key="launcher"></CheckBoxPreference>
-<CheckBoxPreference android:title="Phone" android:summaryOff="Stock Donut phone" android:summaryOn="cytown's phone" android:key="phone"></CheckBoxPreference>
-<CheckBoxPreference android:title="Contacts/dialer" android:summaryOn="Wysie's contacts/dialer" android:summaryOff="Stock Donut contacts/dialer" android:key="contacts"></CheckBoxPreference>
-<CheckBoxPreference android:title="Browser" android:summaryOn="Loccy's BetterBrowser" android:summaryOff="Stock Donut browser" android:key="browser"></CheckBoxPreference><CheckBoxPreference android:title="MMS" android:summaryOn="rgv151's MMS" android:summaryOff="Stock Donut MMS" android:key="mms"></CheckBoxPreference>
+<PreferenceScreen android:title="Theme profile"><CheckBoxPreference android:title="Launcher" android:summaryOn="irrenhaus/rogro82 Advanced Launcher" android:summaryOff="enom's 5-screen standard launcher" android:key="launcher" android:persistent="false"></CheckBoxPreference>
+<CheckBoxPreference android:title="Phone" android:summaryOff="Stock Donut phone" android:summaryOn="cytown's phone" android:key="phone" android:persistent="false"></CheckBoxPreference>
+<CheckBoxPreference android:title="Contacts/dialer" android:summaryOn="Wysie's contacts/dialer" android:summaryOff="Stock Donut contacts/dialer" android:key="contacts" android:persistent="false"></CheckBoxPreference>
+<CheckBoxPreference android:title="Browser" android:summaryOn="Loccy's BetterBrowser" android:summaryOff="Stock Donut browser" android:key="browser" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="MMS" android:summaryOn="rgv151's MMS" android:summaryOff="Stock Donut MMS" android:key="mms" android:persistent="false"></CheckBoxPreference>
 
 </PreferenceScreen>
 </PreferenceScreen>

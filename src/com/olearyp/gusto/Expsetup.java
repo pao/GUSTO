@@ -19,10 +19,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.text.method.DigitsKeyListener;
+import android.util.Log;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
@@ -31,7 +35,7 @@ public class Expsetup extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
-		Map<String, String> conf = getCurrentConfig();
+		Map<String, String> config = getCurrentConfig();
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -62,12 +66,24 @@ public class Expsetup extends PreferenceActivity {
 					}
 
 				});
+		((EditTextPreference) findPreference("swappiness")).setText(config
+				.get("GLB_EP_SWAPPINESS"));
+		((EditTextPreference) findPreference("swappiness")).getEditText()
+				.setKeyListener(DigitsKeyListener.getInstance());
 		findPreference("compcache").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_compcache"));
+		((CheckBoxPreference) findPreference("compcache")).setChecked(config
+				.get("GLB_EP_ENABLE_COMPCACHE").equals("YES"));
 		findPreference("linux_swap").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_linuxswap"));
+		((CheckBoxPreference) findPreference("linux_swap"))
+				.setDefaultValue(config.get("GLB_EP_ENABLE_LINUXSWAP").equals(
+						"YES"));
 		findPreference("userinit").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
+		((CheckBoxPreference) findPreference("userinit"))
+				.setDefaultValue(config.get("GLB_EP_RUN_USERINIT")
+						.equals("YES"));
 	}
 
 	private Map<String, String> getCurrentConfig() {
