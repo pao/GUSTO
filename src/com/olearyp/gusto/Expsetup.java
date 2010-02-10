@@ -21,11 +21,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
@@ -41,7 +43,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						SuServer s = new SuServer() {
+						new SuServer() {
 							@Override
 							protected void onPostExecute(Void result) {
 								String logfiles[] = getEpLogs();
@@ -49,20 +51,61 @@ public class Expsetup extends PreferenceActivity {
 								sendFile(logfiles[logfiles.length - 1]);
 								super.onPostExecute(result);
 							}
-						};
-						s.execute("gen_ep_logfile");
+						}.execute("gen_ep_logfile");
 						return true;
 					}
 				});
-		
+
+		findPreference("freq_sample").setOnPreferenceChangeListener(
+				new ExpPreferenceChangeListener("yes | set_ep_cyan_ond_mod"));
+		((CheckBoxPreference) findPreference("freq_sample"))
+				.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
+
+		findPreference("cpu_freq_min").setOnPreferenceChangeListener(
+				new OnPreferenceChangeListener() {
+
+					@Override
+					public boolean onPreferenceChange(Preference preference,
+							Object newValue) {
+						new SuServer()
+								.execute("GLB_EP_MIN_CPU="
+										+ newValue.toString()
+										+ " && "
+										+ "write_out_ep_config && "
+										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
+						return true;
+					}
+
+				});
+		((ListPreference) findPreference("cpu_freq_min")).setValue(config
+				.get("GLB_EP_MIN_CPU"));
+
+		findPreference("cpu_freq_max").setOnPreferenceChangeListener(
+				new OnPreferenceChangeListener() {
+
+					@Override
+					public boolean onPreferenceChange(Preference preference,
+							Object newValue) {
+						new SuServer()
+								.execute("GLB_EP_MAX_CPU="
+										+ newValue.toString()
+										+ " && "
+										+ "write_out_ep_config && "
+										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
+						return true;
+					}
+
+				});
+		((ListPreference) findPreference("cpu_freq_max")).setValue(config
+				.get("GLB_EP_MAX_CPU"));
+
 		findPreference("swappiness").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
 
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						SuServer s = new SuServer();
-						s.execute("yes '" + newValue.toString()
+						new SuServer().execute("yes '" + newValue.toString()
 								+ "' | set_ep_swappiness");
 						return true;
 					}
@@ -72,42 +115,42 @@ public class Expsetup extends PreferenceActivity {
 				.get("GLB_EP_SWAPPINESS"));
 		((EditTextPreference) findPreference("swappiness")).getEditText()
 				.setKeyListener(DigitsKeyListener.getInstance());
-		
+
 		findPreference("compcache").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_compcache"));
 		((CheckBoxPreference) findPreference("compcache"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
-		
+
 		findPreference("linux_swap").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_linuxswap"));
 		((CheckBoxPreference) findPreference("linux_swap"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
-		
+
 		findPreference("userinit").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
 		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
 				config, "GLB_EP_RUN_USERINIT"));
-		
+
 		findPreference("launcher").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Launcher.apk"));
 		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
 				config, "Launcher.apk"));
-		
+
 		findPreference("phone").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Phone.apk"));
 		((CheckBoxPreference) findPreference("phone")).setChecked(isTrueish(
 				config, "Phone.apk"));
-		
+
 		findPreference("contacts").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Contacts.apk"));
 		((CheckBoxPreference) findPreference("contacts")).setChecked(isTrueish(
 				config, "Contacts.apk"));
-		
+
 		findPreference("browser").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Browser.apk"));
 		((CheckBoxPreference) findPreference("browser")).setChecked(isTrueish(
 				config, "Browser.apk"));
-		
+
 		findPreference("mms").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Mms.apk"));
 		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
@@ -123,7 +166,6 @@ public class Expsetup extends PreferenceActivity {
 		// Read in the config file & parse it
 		BufferedReader rd;
 		try {
-			// Can't read this file right now
 			rd = new BufferedReader(new FileReader("/system/bin/exp.config"));
 			String line = rd.readLine();
 			while (line != null) {
@@ -149,9 +191,7 @@ public class Expsetup extends PreferenceActivity {
 			try {
 				rd = new BufferedReader(new FileReader(THEME_PROFILE_FOLDER
 						+ app_profile));
-				String l = rd.readLine();
-				l = l.trim();
-				config.put(app_profile, l);
+				config.put(app_profile, rd.readLine().trim());
 				rd.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -206,7 +246,7 @@ public class Expsetup extends PreferenceActivity {
 
 	private final class ExpPreferenceChangeListener implements
 			OnPreferenceChangeListener {
-		
+
 		private String command = "";
 
 		public ExpPreferenceChangeListener(String command) {
@@ -216,8 +256,7 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			SuServer s = new SuServer();
-			s.execute(command);
+			new SuServer().execute(command);
 			return true;
 		}
 	}
@@ -238,7 +277,8 @@ public class Expsetup extends PreferenceActivity {
 			if ((Boolean) newValue) {
 				s.execute("echo YES > /data/.epdata/theme_profile/" + filename);
 			} else {
-				s.execute("busybox rm -rf /data/.epdata/theme_profile/" + filename);
+				s.execute("busybox rm -rf /data/.epdata/theme_profile/"
+						+ filename);
 			}
 			return true;
 		}
