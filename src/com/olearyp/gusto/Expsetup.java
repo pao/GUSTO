@@ -26,10 +26,11 @@ import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
+	private static final String THEME_PROFILE_FOLDER = "/data/.epdata/theme_profile/";
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class Expsetup extends PreferenceActivity {
 						return true;
 					}
 				});
+		
 		findPreference("swappiness").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
 
@@ -70,20 +72,50 @@ public class Expsetup extends PreferenceActivity {
 				.get("GLB_EP_SWAPPINESS"));
 		((EditTextPreference) findPreference("swappiness")).getEditText()
 				.setKeyListener(DigitsKeyListener.getInstance());
+		
 		findPreference("compcache").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_compcache"));
-		((CheckBoxPreference) findPreference("compcache")).setChecked(config
-				.get("GLB_EP_ENABLE_COMPCACHE").equals("YES"));
+		((CheckBoxPreference) findPreference("compcache"))
+				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
+		
 		findPreference("linux_swap").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_linuxswap"));
 		((CheckBoxPreference) findPreference("linux_swap"))
-				.setDefaultValue(config.get("GLB_EP_ENABLE_LINUXSWAP").equals(
-						"YES"));
+				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
+		
 		findPreference("userinit").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
-		((CheckBoxPreference) findPreference("userinit"))
-				.setDefaultValue(config.get("GLB_EP_RUN_USERINIT")
-						.equals("YES"));
+		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
+				config, "GLB_EP_RUN_USERINIT"));
+		
+		findPreference("launcher").setOnPreferenceChangeListener(
+				new ExpThemeProfileChangeListener("Launcher.apk"));
+		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
+				config, "Launcher.apk"));
+		
+		findPreference("phone").setOnPreferenceChangeListener(
+				new ExpThemeProfileChangeListener("Phone.apk"));
+		((CheckBoxPreference) findPreference("phone")).setChecked(isTrueish(
+				config, "Phone.apk"));
+		
+		findPreference("contacts").setOnPreferenceChangeListener(
+				new ExpThemeProfileChangeListener("Contacts.apk"));
+		((CheckBoxPreference) findPreference("contacts")).setChecked(isTrueish(
+				config, "Contacts.apk"));
+		
+		findPreference("browser").setOnPreferenceChangeListener(
+				new ExpThemeProfileChangeListener("Browser.apk"));
+		((CheckBoxPreference) findPreference("browser")).setChecked(isTrueish(
+				config, "Browser.apk"));
+		
+		findPreference("mms").setOnPreferenceChangeListener(
+				new ExpThemeProfileChangeListener("Mms.apk"));
+		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
+				config, "Mms.apk"));
+	}
+
+	private boolean isTrueish(Map<String, String> config, String key) {
+		return (config.get(key) != null && config.get(key).equals("YES"));
 	}
 
 	private Map<String, String> getCurrentConfig() {
@@ -112,6 +144,24 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		// Then check the theme profile settings
+		String[] app_profiles = new File(THEME_PROFILE_FOLDER).list();
+		for (String app_profile : app_profiles) {
+			try {
+				rd = new BufferedReader(new FileReader(THEME_PROFILE_FOLDER
+						+ app_profile));
+				String l = rd.readLine();
+				l = l.trim();
+				config.put(app_profile, l);
+				rd.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 		return config;
 	}
 
@@ -156,7 +206,8 @@ public class Expsetup extends PreferenceActivity {
 
 	private final class ExpPreferenceChangeListener implements
 			OnPreferenceChangeListener {
-		String command = "";
+		
+		private String command = "";
 
 		public ExpPreferenceChangeListener(String command) {
 			super();
@@ -169,6 +220,29 @@ public class Expsetup extends PreferenceActivity {
 			s.execute(command);
 			return true;
 		}
+	}
+
+	public class ExpThemeProfileChangeListener implements
+			OnPreferenceChangeListener {
+
+		private String filename;
+
+		public ExpThemeProfileChangeListener(String filename) {
+			super();
+			this.filename = filename;
+		}
+
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			SuServer s = new SuServer();
+			if ((Boolean) newValue) {
+				s.execute("echo YES > /data/.epdata/theme_profile/" + filename);
+			} else {
+				s.execute("busybox rm -rf /data/.epdata/theme_profile/" + filename);
+			}
+			return true;
+		}
+
 	}
 
 	/*
