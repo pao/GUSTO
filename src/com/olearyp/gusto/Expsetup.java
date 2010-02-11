@@ -45,6 +45,7 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
+		
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -69,7 +70,6 @@ public class Expsetup extends PreferenceActivity {
 
 		findPreference("cpu_freq_min").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
-
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
@@ -81,14 +81,12 @@ public class Expsetup extends PreferenceActivity {
 										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
 						return true;
 					}
-
 				});
 		((ListPreference) findPreference("cpu_freq_min")).setValue(config
 				.get("GLB_EP_MIN_CPU"));
 
 		findPreference("cpu_freq_max").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
-
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
@@ -107,7 +105,6 @@ public class Expsetup extends PreferenceActivity {
 
 		findPreference("swappiness").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
-
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
@@ -115,7 +112,6 @@ public class Expsetup extends PreferenceActivity {
 								+ "' | set_ep_swappiness");
 						return true;
 					}
-
 				});
 		((EditTextPreference) findPreference("swappiness")).setText(config
 				.get("GLB_EP_SWAPPINESS"));
@@ -136,6 +132,25 @@ public class Expsetup extends PreferenceActivity {
 				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
 		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
 				config, "GLB_EP_RUN_USERINIT"));
+
+		findPreference("odex").setOnPreferenceChangeListener(
+				new ExpPreferenceChangeListener("yes | toggle_ep_odex_boot_removal"));
+		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
+				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
+		
+		findPreference("reodex").setOnPreferenceClickListener(
+				new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						new SuServer().execute("yes | odex_ep_data_apps");
+						return true;
+					}
+				});
+
+		findPreference("pid_prioritize").setOnPreferenceChangeListener(
+				new ExpPreferenceChangeListener("yes | toggle_ep_pid_prioritizer"));
+		((CheckBoxPreference) findPreference("pid_prioritize")).setChecked(isTrueish(
+				config, "GLB_EP_PID_PRIORITIZE"));
 
 		findPreference("launcher").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Launcher.apk"));
@@ -348,9 +363,9 @@ public class Expsetup extends PreferenceActivity {
 
 				// Poor man's select()
 				while (t.isAlive()) {
-					String str = stdInput.readLine();
-					if (str != null) {
-						publishProgress(str);
+					String status = stdInput.readLine();
+					if (status != null) {
+						publishProgress(status);
 					}
 					Thread.sleep(20);
 				}
