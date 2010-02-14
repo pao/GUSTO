@@ -500,9 +500,7 @@
 		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
 			<regexp path="/manifest/@android:versionCode" pattern="(\d*)" property="manifest.versioncode" />
 		</xmltask>
-		<echo message="vcode:  ${manifest.versioncode}" />
 		<math result="manifest.nextversioncode" operand1="${manifest.versioncode}" operation="+" operand2="1" datatype="int" />
-		<echo message="nvcode: ${manifest.nextversioncode}" />
 		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
 			<replace path="/manifest/@android:versionCode" withText="${manifest.nextversioncode}" />
 		</xmltask>
