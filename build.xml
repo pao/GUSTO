@@ -82,6 +82,10 @@
 
 	<taskdef name="xpath" classname="com.android.ant.XPathTask" classpathref="android.antlibs" />
 
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask"/>
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 	<taskdef name="if" classname="ise.antelope.tasks.IfTask" />
 	
 	<!-- Properties -->
@@ -448,16 +452,68 @@
 
 	<!-- End of targets for code-coverage measurement purposes -->
 
+	<macrodef name="git">
+	    <attribute name="command" />
+	    <element name="args" optional="true" />
+	    <sequential>
+	        <echo message="git @{command}" />
+	        <exec executable="cmd">
+	        	<arg value="/c" />
+	        	<arg value="git" />
+	            <arg value="@{command}" />
+	            <args/>
+	        </exec>
+	    </sequential>
+	</macrodef>
+	
 	<target name="prepare_release">
 		<!-- Change android:versionName from "n.n-dev" to "n.n" -->
-		<!-- git commit -m "Release version ${version}" -->
+		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
+			<regexp path="/manifest/@android:versionName" pattern="-dev" replace="" />
+		</xmltask>
+		<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName" output="manifest.versionname" />
+		<!-- git commit -am "Release version ${manifest.versionname}" -->
+		<git command="commit">
+			<args>
+				<arg value="-am" />
+				<arg value="'Release version ${manifest.versionname}'" />
+			</args>
+		</git>
 		<!-- git tag ${version} -->
+		<git command="tag">
+			<args>
+				<arg value="v${manifest.versionname}" />
+			</args>
+		</git>
 	</target>
 
 	<target name="post_release">
 		<!-- Change android:versionName from "n.n" to "n.n+1-dev" -->
+		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
+			<regexp path="/manifest/@android:versionName" pattern="\d*\.(\d*)" property="manifest.minorversion" />
+		</xmltask>
+		<math result="manifest.nextminorversion" operand1="${manifest.minorversion}" operation="+" operand2="1" datatype="int" />
+		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
+			<regexp path="/manifest/@android:versionName" pattern="(\d*\.).*" replace="$1${manifest.nextminorversion}-dev" />
+		</xmltask>
 		<!-- Change android:versionCode from "n" to "n+1" -->
-		<!-- git commit -m "Increment version" -->
+		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
+			<regexp path="/manifest/@android:versionCode" pattern="(\d*)" property="manifest.versioncode" />
+		</xmltask>
+		<echo message="vcode:  ${manifest.versioncode}" />
+		<math result="manifest.nextversioncode" operand1="${manifest.versioncode}" operation="+" operand2="1" datatype="int" />
+		<echo message="nvcode: ${manifest.nextversioncode}" />
+		<xmltask source="AndroidManifest.xml" dest="AndroidManifest.xml">
+			<replace path="/manifest/@android:versionCode" withText="${manifest.nextversioncode}" />
+		</xmltask>
+		<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName" output="manifest.versionname" />
+		<!-- git commit -am "Increment version" -->
+		<git command="commit">
+			<args>
+				<arg value="-am" />
+				<arg value="'Increment to version ${manifest.versionname}'" />
+			</args>
+		</git>
 	</target>
 	
 	<target name="deploy">
