@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.app.ProgressDialog;
@@ -79,12 +80,13 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
+						List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
+						String[] legalfreqs = freqs.subList(freqs.indexOf(newValue), freqs.size()).toArray(new String[0]);
+						((ListPreference) findPreference("cpu_freq_max")).setEntries(legalfreqs);
+						((ListPreference) findPreference("cpu_freq_max")).setEntryValues(legalfreqs);
 						return true;
 					}
 				});
-		((ListPreference) findPreference("cpu_freq_min")).setValue(config
-				.get("GLB_EP_MIN_CPU"));
-
 		findPreference("cpu_freq_max").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
 					@Override
@@ -96,10 +98,24 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
+						List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
+						String[] legalfreqs = freqs.subList(0,freqs.indexOf(newValue)+1).toArray(new String[0]);
+						((ListPreference) findPreference("cpu_freq_min")).setEntries(legalfreqs);
+						((ListPreference) findPreference("cpu_freq_min")).setEntryValues(legalfreqs);
 						return true;
 					}
 
 				});
+
+		List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
+		String[] maxfreqs = freqs.subList(freqs.indexOf(config.get("GLB_EP_MIN_CPU")), freqs.size()).toArray(new String[0]);
+		((ListPreference) findPreference("cpu_freq_max")).setEntries(maxfreqs);
+		((ListPreference) findPreference("cpu_freq_max")).setEntryValues(maxfreqs);
+		String[] minfreqs = freqs.subList(0,freqs.indexOf(config.get("GLB_EP_MAX_CPU"))+1).toArray(new String[0]);
+		((ListPreference) findPreference("cpu_freq_min")).setEntries(minfreqs);
+		((ListPreference) findPreference("cpu_freq_min")).setEntryValues(minfreqs);
+		((ListPreference) findPreference("cpu_freq_min")).setValue(config
+				.get("GLB_EP_MIN_CPU"));
 		((ListPreference) findPreference("cpu_freq_max")).setValue(config
 				.get("GLB_EP_MAX_CPU"));
 
