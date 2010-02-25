@@ -476,7 +476,7 @@
 		<git command="commit">
 			<args>
 				<arg value="-am" />
-				<arg value="'Release version ${manifest.versionname}'" />
+				<arg value="Release version ${manifest.versionname}" />
 			</args>
 		</git>
 		<!-- git tag ${version} -->
@@ -509,7 +509,7 @@
 		<git command="commit">
 			<args>
 				<arg value="-am" />
-				<arg value="'Increment to version ${manifest.versionname}'" />
+				<arg value="Increment to version ${manifest.versionname}" />
 			</args>
 		</git>
 	</target>
