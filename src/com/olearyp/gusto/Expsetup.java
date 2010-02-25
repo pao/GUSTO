@@ -46,7 +46,7 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
-		
+
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -69,8 +69,12 @@ public class Expsetup extends PreferenceActivity {
 		((CheckBoxPreference) findPreference("freq_sample"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
 
-		findPreference("cpu_freq_min").setOnPreferenceChangeListener(
-				new OnPreferenceChangeListener() {
+		final List<String> freqs = Arrays.asList(getResources().getStringArray(
+				R.array.cpu_freqs_str));
+		final ListPreference minFreqPref = (ListPreference) findPreference("cpu_freq_min");
+		final ListPreference maxFreqPref = (ListPreference) findPreference("cpu_freq_max");
+		minFreqPref
+				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
@@ -80,15 +84,16 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
-						List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
-						String[] legalfreqs = freqs.subList(freqs.indexOf(newValue), freqs.size()).toArray(new String[0]);
-						((ListPreference) findPreference("cpu_freq_max")).setEntries(legalfreqs);
-						((ListPreference) findPreference("cpu_freq_max")).setEntryValues(legalfreqs);
+						String[] legalfreqs = freqs.subList(
+								freqs.indexOf(newValue), freqs.size()).toArray(
+								new String[0]);
+						maxFreqPref.setEntries(legalfreqs);
+						maxFreqPref.setEntryValues(legalfreqs);
 						return true;
 					}
 				});
-		findPreference("cpu_freq_max").setOnPreferenceChangeListener(
-				new OnPreferenceChangeListener() {
+		maxFreqPref
+				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
@@ -98,26 +103,29 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
-						List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
-						String[] legalfreqs = freqs.subList(0,freqs.indexOf(newValue)+1).toArray(new String[0]);
-						((ListPreference) findPreference("cpu_freq_min")).setEntries(legalfreqs);
-						((ListPreference) findPreference("cpu_freq_min")).setEntryValues(legalfreqs);
+						String[] legalfreqs = freqs.subList(0,
+								freqs.indexOf(newValue) + 1).toArray(
+								new String[0]);
+						minFreqPref.setEntries(legalfreqs);
+						minFreqPref.setEntryValues(legalfreqs);
 						return true;
 					}
 
 				});
 
-		List<String> freqs = Arrays.asList(getResources().getStringArray(R.array.cpu_freqs_str));
-		String[] maxfreqs = freqs.subList(freqs.indexOf(config.get("GLB_EP_MIN_CPU")), freqs.size()).toArray(new String[0]);
-		((ListPreference) findPreference("cpu_freq_max")).setEntries(maxfreqs);
-		((ListPreference) findPreference("cpu_freq_max")).setEntryValues(maxfreqs);
-		String[] minfreqs = freqs.subList(0,freqs.indexOf(config.get("GLB_EP_MAX_CPU"))+1).toArray(new String[0]);
-		((ListPreference) findPreference("cpu_freq_min")).setEntries(minfreqs);
-		((ListPreference) findPreference("cpu_freq_min")).setEntryValues(minfreqs);
-		((ListPreference) findPreference("cpu_freq_min")).setValue(config
-				.get("GLB_EP_MIN_CPU"));
-		((ListPreference) findPreference("cpu_freq_max")).setValue(config
-				.get("GLB_EP_MAX_CPU"));
+		String[] maxfreqs = freqs.subList(
+				freqs.indexOf(config.get("GLB_EP_MIN_CPU")), freqs.size())
+				.toArray(new String[0]);
+		maxFreqPref.setEntries(maxfreqs);
+		maxFreqPref.setEntryValues(maxfreqs);
+		String[] minfreqs = freqs.subList(0,
+				freqs.indexOf(config.get("GLB_EP_MAX_CPU")) + 1).toArray(
+				new String[0]);
+		minFreqPref.setEntries(minfreqs);
+		minFreqPref.setEntryValues(minfreqs);
+
+		maxFreqPref.setValue(config.get("GLB_EP_MAX_CPU"));
+		minFreqPref.setValue(config.get("GLB_EP_MIN_CPU"));
 
 		findPreference("swappiness").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
@@ -150,10 +158,11 @@ public class Expsetup extends PreferenceActivity {
 				config, "GLB_EP_RUN_USERINIT"));
 
 		findPreference("odex").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | toggle_ep_odex_boot_removal"));
+				new ExpPreferenceChangeListener(
+						"yes | toggle_ep_odex_boot_removal"));
 		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
 				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
-		
+
 		findPreference("reodex").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -164,9 +173,10 @@ public class Expsetup extends PreferenceActivity {
 				});
 
 		findPreference("pid_prioritize").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | toggle_ep_pid_prioritizer"));
-		((CheckBoxPreference) findPreference("pid_prioritize")).setChecked(isTrueish(
-				config, "GLB_EP_PID_PRIORITIZE"));
+				new ExpPreferenceChangeListener(
+						"yes | toggle_ep_pid_prioritizer"));
+		((CheckBoxPreference) findPreference("pid_prioritize"))
+				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
 
 		findPreference("launcher").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Launcher.apk"));
