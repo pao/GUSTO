@@ -34,7 +34,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.text.method.DigitsKeyListener;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
@@ -118,6 +117,7 @@ public class Expsetup extends PreferenceActivity {
 				.toArray(new String[0]);
 		maxFreqPref.setEntries(maxfreqs);
 		maxFreqPref.setEntryValues(maxfreqs);
+		
 		String[] minfreqs = freqs.subList(0,
 				freqs.indexOf(config.get("GLB_EP_MAX_CPU")) + 1).toArray(
 				new String[0]);
@@ -140,7 +140,7 @@ public class Expsetup extends PreferenceActivity {
 		((EditTextPreference) findPreference("swappiness")).setText(config
 				.get("GLB_EP_SWAPPINESS"));
 		((EditTextPreference) findPreference("swappiness")).getEditText()
-				.setKeyListener(DigitsKeyListener.getInstance());
+				.setKeyListener(new SwappinessKeyListener());
 
 		findPreference("compcache").setOnPreferenceChangeListener(
 				new ExpPreferenceChangeListener("yes | toggle_ep_compcache"));
