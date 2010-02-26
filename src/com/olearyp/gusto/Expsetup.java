@@ -44,6 +44,7 @@ public class Expsetup extends PreferenceActivity {
 	private static final String THEME_PROFILE_FOLDER = "/data/.epdata/theme_profile/";
 
 	private boolean system_needs_reboot = false;
+	private boolean system_needs_reboot_recovery = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -235,23 +236,45 @@ public class Expsetup extends PreferenceActivity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
-		if (keyCode == KeyEvent.KEYCODE_BACK && system_needs_reboot) {
-			new AlertDialog.Builder(Expsetup.this)
-					.setMessage(
-							"Phone must be rebooted for settings to take effect.  Reboot now?")
-					.setPositiveButton("Yes", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-							new SuServer().execute("reboot");
-						}
-					}).setNegativeButton("No", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Expsetup.this.finish();
-						}
-					}).show();
-			return true;
-		} 
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (system_needs_reboot_recovery) {
+				new AlertDialog.Builder(Expsetup.this)
+						.setMessage(
+								"Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?")
+						.setPositiveButton("Yes", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								new SuServer().execute("reboot recovery");
+							}
+						}).setNegativeButton("No", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Expsetup.this.finish();
+							}
+						}).show();
+				return true;
+			} else if (system_needs_reboot) {
+				new AlertDialog.Builder(Expsetup.this)
+						.setMessage(
+								"Phone must be rebooted for settings to take effect.  Reboot now?")
+						.setPositiveButton("Yes", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								new SuServer().execute("reboot");
+							}
+						}).setNegativeButton("No", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Expsetup.this.finish();
+							}
+						}).show();
+				return true;
+			}
+		}
 		return super.onKeyDown(keyCode, event);
 	}
 
@@ -396,6 +419,7 @@ public class Expsetup extends PreferenceActivity {
 				s.execute("busybox rm -rf /data/.epdata/theme_profile/"
 						+ filename);
 			}
+			system_needs_reboot_recovery = true;
 			return true;
 		}
 
