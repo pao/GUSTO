@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,10 +37,13 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
 	private static final String THEME_PROFILE_FOLDER = "/data/.epdata/theme_profile/";
+
+	private boolean system_needs_reboot = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -161,7 +167,7 @@ public class Expsetup extends PreferenceActivity {
 
 		// Compcache
 		findPreference("compcache").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_compcache"));
+				new ExpPreferenceListener("yes | toggle_ep_compcache", true));
 		((CheckBoxPreference) findPreference("compcache"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
 
@@ -224,6 +230,29 @@ public class Expsetup extends PreferenceActivity {
 				new ExpThemeProfileChangeListener("Mms.apk"));
 		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
 				config, "Mms.apk"));
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK && system_needs_reboot) {
+			new AlertDialog.Builder(Expsetup.this)
+					.setMessage(
+							"Phone must be rebooted for settings to take effect.  Reboot now?")
+					.setPositiveButton("Yes", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							new SuServer().execute("reboot");
+						}
+					}).setNegativeButton("No", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Expsetup.this.finish();
+						}
+					}).show();
+			return true;
+		} 
+		return super.onKeyDown(keyCode, event);
 	}
 
 	private boolean isTrueish(Map<String, String> config, String key) {
@@ -317,21 +346,33 @@ public class Expsetup extends PreferenceActivity {
 			OnPreferenceChangeListener, OnPreferenceClickListener {
 
 		private String command = "";
+		private boolean requires_reboot = false;
 
 		public ExpPreferenceListener(String command) {
+			this(command, false);
+		}
+
+		public ExpPreferenceListener(String command, boolean requires_reboot) {
 			super();
 			this.command = command;
+			this.requires_reboot = requires_reboot;
 		}
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			new SuServer().execute(command);
+			if (requires_reboot) {
+				system_needs_reboot = true;
+			}
 			return true;
 		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			new SuServer().execute(command);
+			if (requires_reboot) {
+				system_needs_reboot = true;
+			}
 			return true;
 		}
 	}
