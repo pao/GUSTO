@@ -46,13 +46,21 @@ public class Expsetup extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
 
-		findPreference("reboot").setOnPreferenceClickListener(new ExpPreferenceListener("reboot"));
-		findPreference("reboot_recovery").setOnPreferenceClickListener(new ExpPreferenceListener("reboot recovery"));
-		findPreference("reboot_bootloader").setOnPreferenceClickListener(new ExpPreferenceListener("reboot bootloader"));
-		findPreference("reboot_poweroff").setOnPreferenceClickListener(new ExpPreferenceListener("reboot poweroff"));
-		findPreference("rwsystem").setOnPreferenceClickListener(new ExpPreferenceListener("rwsystem"));
-		findPreference("rosystem").setOnPreferenceClickListener(new ExpPreferenceListener("rosystem"));
+		// QuickCommands menu
+		findPreference("reboot").setOnPreferenceClickListener(
+				new ExpPreferenceListener("reboot"));
+		findPreference("reboot_recovery").setOnPreferenceClickListener(
+				new ExpPreferenceListener("reboot recovery"));
+		findPreference("reboot_bootloader").setOnPreferenceClickListener(
+				new ExpPreferenceListener("reboot bootloader"));
+		findPreference("reboot_poweroff").setOnPreferenceClickListener(
+				new ExpPreferenceListener("reboot poweroff"));
+		findPreference("rwsystem").setOnPreferenceClickListener(
+				new ExpPreferenceListener("rwsystem"));
+		findPreference("rosystem").setOnPreferenceClickListener(
+				new ExpPreferenceListener("rosystem"));
 
+		// Generate and send ep_log
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -70,6 +78,7 @@ public class Expsetup extends PreferenceActivity {
 					}
 				});
 
+		// CPU options
 		findPreference("freq_sample").setOnPreferenceChangeListener(
 				new ExpPreferenceListener("yes | set_ep_cyan_ond_mod"));
 		((CheckBoxPreference) findPreference("freq_sample"))
@@ -134,6 +143,7 @@ public class Expsetup extends PreferenceActivity {
 		maxFreqPref.setValue(config.get("GLB_EP_MAX_CPU"));
 		minFreqPref.setValue(config.get("GLB_EP_MIN_CPU"));
 
+		// Swappiness
 		findPreference("swappiness").setOnPreferenceChangeListener(
 				new OnPreferenceChangeListener() {
 					@Override
@@ -149,27 +159,31 @@ public class Expsetup extends PreferenceActivity {
 		((EditTextPreference) findPreference("swappiness")).getEditText()
 				.setKeyListener(new SwappinessKeyListener());
 
+		// Compcache
 		findPreference("compcache").setOnPreferenceChangeListener(
 				new ExpPreferenceListener("yes | toggle_ep_compcache"));
 		((CheckBoxPreference) findPreference("compcache"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
 
+		// Linux swap
 		findPreference("linux_swap").setOnPreferenceChangeListener(
 				new ExpPreferenceListener("yes | toggle_ep_linuxswap"));
 		((CheckBoxPreference) findPreference("linux_swap"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
 
+		// userinit.sh
 		findPreference("userinit").setOnPreferenceChangeListener(
 				new ExpPreferenceListener("yes | toggle_ep_userinit"));
 		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
 				config, "GLB_EP_RUN_USERINIT"));
 
+		// Remove odex on boot
 		findPreference("odex").setOnPreferenceChangeListener(
-				new ExpPreferenceListener(
-						"yes | toggle_ep_odex_boot_removal"));
+				new ExpPreferenceListener("yes | toggle_ep_odex_boot_removal"));
 		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
 				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
 
+		// Odex now
 		findPreference("reodex").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -179,12 +193,13 @@ public class Expsetup extends PreferenceActivity {
 					}
 				});
 
+		// Set pid priorities
 		findPreference("pid_prioritize").setOnPreferenceChangeListener(
-				new ExpPreferenceListener(
-						"yes | toggle_ep_pid_prioritizer"));
+				new ExpPreferenceListener("yes | toggle_ep_pid_prioritizer"));
 		((CheckBoxPreference) findPreference("pid_prioritize"))
 				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
 
+		// Theme profile settings
 		findPreference("launcher").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Launcher.apk"));
 		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
