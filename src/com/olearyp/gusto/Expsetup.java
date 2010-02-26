@@ -46,6 +46,13 @@ public class Expsetup extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
 
+		findPreference("reboot").setOnPreferenceClickListener(new ExpPreferenceListener("reboot"));
+		findPreference("reboot_recovery").setOnPreferenceClickListener(new ExpPreferenceListener("reboot recovery"));
+		findPreference("reboot_bootloader").setOnPreferenceClickListener(new ExpPreferenceListener("reboot bootloader"));
+		findPreference("reboot_poweroff").setOnPreferenceClickListener(new ExpPreferenceListener("reboot poweroff"));
+		findPreference("rwsystem").setOnPreferenceClickListener(new ExpPreferenceListener("rwsystem"));
+		findPreference("rosystem").setOnPreferenceClickListener(new ExpPreferenceListener("rosystem"));
+
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new OnPreferenceClickListener() {
 					@Override
@@ -64,7 +71,7 @@ public class Expsetup extends PreferenceActivity {
 				});
 
 		findPreference("freq_sample").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | set_ep_cyan_ond_mod"));
+				new ExpPreferenceListener("yes | set_ep_cyan_ond_mod"));
 		((CheckBoxPreference) findPreference("freq_sample"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
 
@@ -117,7 +124,7 @@ public class Expsetup extends PreferenceActivity {
 				.toArray(new String[0]);
 		maxFreqPref.setEntries(maxfreqs);
 		maxFreqPref.setEntryValues(maxfreqs);
-		
+
 		String[] minfreqs = freqs.subList(0,
 				freqs.indexOf(config.get("GLB_EP_MAX_CPU")) + 1).toArray(
 				new String[0]);
@@ -143,22 +150,22 @@ public class Expsetup extends PreferenceActivity {
 				.setKeyListener(new SwappinessKeyListener());
 
 		findPreference("compcache").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | toggle_ep_compcache"));
+				new ExpPreferenceListener("yes | toggle_ep_compcache"));
 		((CheckBoxPreference) findPreference("compcache"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
 
 		findPreference("linux_swap").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | toggle_ep_linuxswap"));
+				new ExpPreferenceListener("yes | toggle_ep_linuxswap"));
 		((CheckBoxPreference) findPreference("linux_swap"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
 
 		findPreference("userinit").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener("yes | toggle_ep_userinit"));
+				new ExpPreferenceListener("yes | toggle_ep_userinit"));
 		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
 				config, "GLB_EP_RUN_USERINIT"));
 
 		findPreference("odex").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener(
+				new ExpPreferenceListener(
 						"yes | toggle_ep_odex_boot_removal"));
 		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
 				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
@@ -173,7 +180,7 @@ public class Expsetup extends PreferenceActivity {
 				});
 
 		findPreference("pid_prioritize").setOnPreferenceChangeListener(
-				new ExpPreferenceChangeListener(
+				new ExpPreferenceListener(
 						"yes | toggle_ep_pid_prioritizer"));
 		((CheckBoxPreference) findPreference("pid_prioritize"))
 				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
@@ -291,18 +298,24 @@ public class Expsetup extends PreferenceActivity {
 		startActivity(Intent.createChooser(sendIntent, "Send ep_log via..."));
 	}
 
-	private final class ExpPreferenceChangeListener implements
-			OnPreferenceChangeListener {
+	private final class ExpPreferenceListener implements
+			OnPreferenceChangeListener, OnPreferenceClickListener {
 
 		private String command = "";
 
-		public ExpPreferenceChangeListener(String command) {
+		public ExpPreferenceListener(String command) {
 			super();
 			this.command = command;
 		}
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			new SuServer().execute(command);
+			return true;
+		}
+
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
 			new SuServer().execute(command);
 			return true;
 		}

@@ -9,7 +9,15 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android" android:title="GUSTO: GUI Used to Setup TheOfficial">
 
-<PreferenceScreen android:title="CPU options" android:key="cpu_opts"><CheckBoxPreference android:title="Frequency sampler" android:summaryOff="Normal" android:key="freq_sample" android:summaryOn="Cyanogenized" android:persistent="false"></CheckBoxPreference><ListPreference android:title="Min CPU frequency" android:dialogTitle="Set minimum CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_min" android:persistent="false" android:entryValues="@array/cpu_freqs_str"></ListPreference><ListPreference android:title="Max CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_max" android:persistent="false" android:dialogTitle="Set maximum CPU frequency" android:entryValues="@array/cpu_freqs_str"></ListPreference></PreferenceScreen><EditTextPreference android:title="Swappiness" android:dialogTitle="Set swappiness" android:key="swappiness" android:persistent="false"></EditTextPreference><CheckBoxPreference android:title="Compcache" android:summaryOn="Use compcache" android:summaryOff="Do not use compcache" android:key="compcache" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="Linux Swap" android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled" android:key="linux_swap" android:persistent="false"></CheckBoxPreference>
+<PreferenceScreen android:key="qcommands" android:title="QuickCommands"><Preference android:title="Reboot" android:key="reboot"></Preference>
+<Preference android:key="reboot_recovery" android:title="Reboot to recovery"></Preference>
+<Preference android:key="reboot_bootloader" android:title="Reboot to bootloader"></Preference>
+<Preference android:title="Shutdown" android:key="reboot_poweroff"></Preference>
+
+
+<Preference android:title="Set /system read/write" android:key="rwsystem"></Preference>
+<Preference android:title="Set /system read-only" android:key="rosystem"></Preference>
+</PreferenceScreen><PreferenceScreen android:title="CPU options" android:key="cpu_opts"><CheckBoxPreference android:title="Frequency sampler" android:summaryOff="Normal" android:key="freq_sample" android:summaryOn="Cyanogenized" android:persistent="false"></CheckBoxPreference><ListPreference android:title="Min CPU frequency" android:dialogTitle="Set minimum CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_min" android:persistent="false" android:entryValues="@array/cpu_freqs_str"></ListPreference><ListPreference android:title="Max CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_max" android:persistent="false" android:dialogTitle="Set maximum CPU frequency" android:entryValues="@array/cpu_freqs_str"></ListPreference></PreferenceScreen><EditTextPreference android:title="Swappiness" android:dialogTitle="Set swappiness" android:key="swappiness" android:persistent="false"></EditTextPreference><CheckBoxPreference android:title="Compcache" android:summaryOn="Use compcache" android:summaryOff="Do not use compcache" android:key="compcache" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="Linux Swap" android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled" android:key="linux_swap" android:persistent="false"></CheckBoxPreference>
 <CheckBoxPreference android:title="User init script" android:summaryOn="Run userinit.sh at startup" android:summaryOff="Do not run userinit.sh at startup" android:key="userinit" android:persistent="false"></CheckBoxPreference>
 
 
@@ -29,4 +37,5 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 </PreferenceScreen><CheckBoxPreference android:summaryOff="Do not remove odex files at boot" android:title="ODEX file handling" android:key="odex" android:summaryOn="Remove odex files at boot" android:persistent="false"></CheckBoxPreference>
 <Preference android:key="reodex" android:title="ODEX /data/app now" android:persistent="false"></Preference>
 <CheckBoxPreference android:title="Prioritize critical applications" android:key="pid_prioritize" android:summary="Increase priority of phone processes" android:persistent="false"></CheckBoxPreference><Preference android:title="Generate ep_log" android:key="ep_log" android:persistent="false"></Preference>
+
 </PreferenceScreen>

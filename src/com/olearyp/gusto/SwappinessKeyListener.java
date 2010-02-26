@@ -8,7 +8,7 @@ public class SwappinessKeyListener extends DigitsKeyListener {
 	@Override
 	public CharSequence filter(CharSequence source, int start, int end,
 			Spanned dest, int dstart, int dend) {
-		// If new character not a digit or blank, kill it
+		// If new character not a digit or empty, kill it
 		if (!source.toString().matches("[0-9]*"))
 			return "";
 		// Seed the new string with "0" in case it is blank
