@@ -461,8 +461,9 @@ public class Expsetup extends PreferenceActivity {
 				BufferedWriter stdOutput = new BufferedWriter(
 						new OutputStreamWriter(p.getOutputStream()));
 
-				stdOutput.write(". /system/bin/exp_script.sh.lib && " + args[0]
-						+ "; exit\n");
+				stdOutput
+						.write(". /system/bin/exp_script.sh.lib && read_in_ep_config && "
+								+ args[0] + "; exit\n");
 				stdOutput.flush();
 				/*
 				 * We need to asynchronously find out when this process is done
