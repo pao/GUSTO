@@ -37,6 +37,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
@@ -52,7 +53,7 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
-
+		
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
 				new ExpPreferenceListener("reboot"));
@@ -207,6 +208,12 @@ public class Expsetup extends PreferenceActivity {
 				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
 
 		// Theme profile settings
+		if (config.get("GLB_EP_VERSION_EPDATA").contains("-TMO")) {
+			findPreference("launcher").setEnabled(false);
+			findPreference("phone").setEnabled(false);
+			findPreference("contacts").setEnabled(false);
+		}
+
 		findPreference("launcher").setOnPreferenceChangeListener(
 				new ExpThemeProfileChangeListener("Launcher.apk"));
 		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
@@ -440,7 +447,8 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		protected void onProgressUpdate(String... values) {
-			pd.setMessage(values[0]);
+			// TODO: Implement advanced dialog
+			//pd.setMessage(values[0]);
 		}
 
 		@Override
