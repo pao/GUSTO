@@ -59,7 +59,7 @@ public class Expsetup extends PreferenceActivity {
 		findPreference("reboot_recovery").setOnPreferenceClickListener(
 				new ExpPreferenceListener("start reboot-recovery"));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new ExpPreferenceListener("start reboot-bootloader"));
+				new ExpPreferenceListener("start reboot-bootload"));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
 				new ExpPreferenceListener("start shutdown"));
 		findPreference("rwsystem").setOnPreferenceClickListener(
