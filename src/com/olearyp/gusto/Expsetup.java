@@ -55,13 +55,13 @@ public class Expsetup extends PreferenceActivity {
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
-				new ExpPreferenceListener("reboot"));
+				new ExpPreferenceListener("start reboot"));
 		findPreference("reboot_recovery").setOnPreferenceClickListener(
-				new ExpPreferenceListener("reboot recovery"));
+				new ExpPreferenceListener("start reboot-recovery"));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new ExpPreferenceListener("reboot bootloader"));
+				new ExpPreferenceListener("start reboot-bootloader"));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new ExpPreferenceListener("reboot poweroff"));
+				new ExpPreferenceListener("start shutdown"));
 		findPreference("rwsystem").setOnPreferenceClickListener(
 				new ExpPreferenceListener("rwsystem"));
 		findPreference("rosystem").setOnPreferenceClickListener(
