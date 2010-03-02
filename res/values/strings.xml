@@ -7,7 +7,14 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
-    <string name="reboot_request_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
+    <string name="shutdown_msg">Do you wish to shutdown?</string>
+    <string name="reboot_bootloader_msg">Do you wish to reboot into the bootloader?</string>
+    <string name="reboot_recovery_msg">Do you wish to reboot into recovery?</string>
+    <string name="reboot_msg">Do you wish to reboot?</string>
+    <string name="create_log">Create log</string>
+    <string name="ep_log_confirm_msg">This option creates a file with debugging information which will be sent to enomther to diagnose problems you may have with TheOfficial.  Please, only confirm this option if enomther has requested an ep_log.  This will include, among other things, a list of your applications and may reveal your email address.</string>
+    <string name="return_to_menu">Return to menu</string>
+    <string name="reboot_required_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="reboot_reflash_msg">Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?</string>
