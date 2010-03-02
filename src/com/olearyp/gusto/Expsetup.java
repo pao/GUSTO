@@ -421,14 +421,9 @@ public class Expsetup extends PreferenceActivity {
 			this.command = command;
 		}
 
-		protected boolean runCommand() {
-			rebootDialog(message, command, false).show();
-			return true;
-		}
-
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			// TODO Auto-generated method stub
+			rebootDialog(message, command, false).show();
 			return false;
 		}
 	}
