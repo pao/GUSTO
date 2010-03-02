@@ -23,6 +23,7 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -242,45 +243,32 @@ public class Expsetup extends PreferenceActivity {
 		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (system_needs_reboot_recovery) {
-				new AlertDialog.Builder(Expsetup.this)
-						.setMessage(
-								"Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?")
-						.setPositiveButton("Yes", new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								new SuServer()
-										.execute(R.string.reboot_recovery);
-							}
-						}).setNegativeButton("No", new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Expsetup.this.finish();
-							}
-						}).show();
+				rebootDialog(R.string.reboot_reflash_msg,
+						R.string.reboot_recovery).show();
 				return true;
 			} else if (system_needs_reboot) {
-				new AlertDialog.Builder(Expsetup.this)
-						.setMessage(
-								"Phone must be rebooted for settings to take effect.  Reboot now?")
-						.setPositiveButton("Yes", new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								new SuServer().execute(R.string.reboot);
-							}
-						}).setNegativeButton("No", new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Expsetup.this.finish();
-							}
-						}).show();
+				rebootDialog(R.string.reboot_request_msg, R.string.reboot)
+						.show();
 				return true;
 			}
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+
+	private Builder rebootDialog(int message, final int reboot_cmd) {
+		return new AlertDialog.Builder(Expsetup.this).setMessage(
+				getString(message)).setPositiveButton(R.string.yes,
+				new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						new SuServer().execute(reboot_cmd);
+					}
+				}).setNegativeButton(R.string.no, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Expsetup.this.finish();
+			}
+		});
 	}
 
 	private boolean isTrueish(Map<String, String> config, String key) {

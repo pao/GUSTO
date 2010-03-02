@@ -7,6 +7,10 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
+    <string name="reboot_request_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="reboot_reflash_msg">Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?</string>
     <string name="theme_profile_folder">/data/.epdata/theme_profile/</string>
     <string name="rosystem">rosystem</string>
     <string name="rwsystem">rwsystem</string>
