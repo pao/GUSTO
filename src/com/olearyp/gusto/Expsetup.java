@@ -37,13 +37,10 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.util.Log;
 import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
-	private static final String THEME_PROFILE_FOLDER = "/data/.epdata/theme_profile/";
-
 	private boolean system_needs_reboot = false;
 	private boolean system_needs_reboot_recovery = false;
 
@@ -53,20 +50,20 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
-		
+
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
-				new ExpPreferenceListener("start reboot"));
+				new ExpPreferenceListener(R.string.reboot));
 		findPreference("reboot_recovery").setOnPreferenceClickListener(
-				new ExpPreferenceListener("start reboot-recovery"));
+				new ExpPreferenceListener(R.string.reboot_recovery));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new ExpPreferenceListener("start reboot-bootload"));
+				new ExpPreferenceListener(R.string.reboot_bootload));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new ExpPreferenceListener("start shutdown"));
+				new ExpPreferenceListener(R.string.shutdown));
 		findPreference("rwsystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener("rwsystem"));
+				new ExpPreferenceListener(R.string.rwsystem));
 		findPreference("rosystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener("rosystem"));
+				new ExpPreferenceListener(R.string.rosystem));
 
 		// Generate and send ep_log
 		findPreference("ep_log").setOnPreferenceClickListener(
@@ -252,7 +249,8 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								new SuServer().execute("start reboot-recovery");
+								new SuServer()
+										.execute(R.string.reboot_recovery);
 							}
 						}).setNegativeButton("No", new OnClickListener() {
 							@Override
@@ -270,7 +268,7 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								new SuServer().execute("start reboot");
+								new SuServer().execute(R.string.reboot);
 							}
 						}).setNegativeButton("No", new OnClickListener() {
 							@Override
@@ -314,11 +312,12 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		// Then check the theme profile settings
-		String[] app_profiles = new File(THEME_PROFILE_FOLDER).list();
+		String[] app_profiles = new File(
+				getString(R.string.theme_profile_folder)).list();
 		for (String app_profile : app_profiles) {
 			try {
-				rd = new BufferedReader(new FileReader(THEME_PROFILE_FOLDER
-						+ app_profile));
+				rd = new BufferedReader(new FileReader(
+						getString(R.string.theme_profile_folder) + app_profile));
 				config.put(app_profile, rd.readLine().trim());
 				rd.close();
 			} catch (FileNotFoundException e) {
@@ -345,6 +344,10 @@ public class Expsetup extends PreferenceActivity {
 				});
 	}
 
+	/*
+	 * Implementation of rot13 algorithm to hide email addresses from spambots
+	 * looking through the sourcecode.
+	 */
 	private String decode_address(String string) {
 		StringBuffer tempReturn = new StringBuffer();
 		for (int i = 0; i < string.length(); i++) {
@@ -359,8 +362,10 @@ public class Expsetup extends PreferenceActivity {
 		return tempReturn.toString();
 	}
 
+	/* Email an ep_log file as attachment to enomther */
 	private void sendFile(String logfile) {
 		// rabzgure is going to love me forever
+		// TODO: Refactor the email address string
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		sendIntent.setType("text/plain");
 		sendIntent.putExtra(Intent.EXTRA_EMAIL,
@@ -372,6 +377,7 @@ public class Expsetup extends PreferenceActivity {
 		startActivity(Intent.createChooser(sendIntent, "Send ep_log via..."));
 	}
 
+	/* Generic listener which executes a command as root */
 	private final class ExpPreferenceListener implements
 			OnPreferenceChangeListener, OnPreferenceClickListener {
 
@@ -388,17 +394,21 @@ public class Expsetup extends PreferenceActivity {
 			this.requires_reboot = requires_reboot;
 		}
 
+		public ExpPreferenceListener(int command) {
+			this(getString(command));
+		}
+
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			new SuServer().execute(command);
-			if (requires_reboot) {
-				system_needs_reboot = true;
-			}
-			return true;
+			return runCommand();
 		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
+			return runCommand();
+		}
+
+		private boolean runCommand() {
 			new SuServer().execute(command);
 			if (requires_reboot) {
 				system_needs_reboot = true;
@@ -407,6 +417,11 @@ public class Expsetup extends PreferenceActivity {
 		}
 	}
 
+	/*
+	 * Listener for theme profile configuration, which is more complex than the
+	 * other settings (since there's no function in the library which does this
+	 * for me.)
+	 */
 	public class ExpThemeProfileChangeListener implements
 			OnPreferenceChangeListener {
 
@@ -433,7 +448,7 @@ public class Expsetup extends PreferenceActivity {
 	}
 
 	/*
-	 * The mack-daddy, heavy-lifting, megaclass that gets it done.
+	 * Execute a command as root, showing a progress dialog in the meantime.
 	 */
 	private class SuServer extends AsyncTask<String, String, Void> {
 
@@ -445,10 +460,15 @@ public class Expsetup extends PreferenceActivity {
 					"Starting process...", true, false);
 		}
 
+		public void execute(int command) {
+			// TODO Auto-generated method stub
+			this.execute(getString(command));
+		}
+
 		@Override
 		protected void onProgressUpdate(String... values) {
 			// TODO: Implement advanced dialog
-			//pd.setMessage(values[0]);
+			// pd.setMessage(values[0]);
 		}
 
 		@Override

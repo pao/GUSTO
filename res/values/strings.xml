@@ -7,6 +7,13 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
+    <string name="theme_profile_folder">/data/.epdata/theme_profile/</string>
+    <string name="rosystem">rosystem</string>
+    <string name="rwsystem">rwsystem</string>
+    <string name="shutdown">start shutdown</string>
+    <string name="reboot_bootload">start reboot-bootload</string>
+    <string name="reboot_recovery">start reboot-recovery</string>
+    <string name="reboot">start reboot</string>
     <string name="hello">Hello World, Expsetup!</string>
     <string name="app_name">GUSTO</string>
 
