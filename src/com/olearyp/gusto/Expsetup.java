@@ -245,7 +245,7 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								new SuServer().execute("reboot recovery");
+								new SuServer().execute("start reboot-recovery");
 							}
 						}).setNegativeButton("No", new OnClickListener() {
 							@Override
@@ -263,7 +263,7 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								new SuServer().execute("reboot");
+								new SuServer().execute("start reboot");
 							}
 						}).setNegativeButton("No", new OnClickListener() {
 							@Override
