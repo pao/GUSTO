@@ -8,27 +8,22 @@
 package com.olearyp.gusto;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.CheckBoxPreference;
@@ -76,7 +71,7 @@ public class Expsetup extends PreferenceActivity {
 								R.string.create_log, new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								new SuServer() {
+								new SuServer(Expsetup.this) {
 									@Override
 									protected void onPostExecute(Void result) {
 										String logfiles[] = getEpLogs();
@@ -106,7 +101,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer()
+						new SuServer(Expsetup.this)
 								.execute("GLB_EP_MIN_CPU="
 										+ newValue.toString()
 										+ " && "
@@ -125,7 +120,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer()
+						new SuServer(Expsetup.this)
 								.execute("GLB_EP_MAX_CPU="
 										+ newValue.toString()
 										+ " && "
@@ -162,7 +157,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer().execute("yes '" + newValue.toString()
+						new SuServer(Expsetup.this).execute("yes '" + newValue.toString()
 								+ "' | set_ep_swappiness");
 						return true;
 					}
@@ -201,7 +196,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						new SuServer().execute("yes | odex_ep_data_apps");
+						new SuServer(Expsetup.this).execute("yes | odex_ep_data_apps");
 						return true;
 					}
 				});
@@ -268,7 +263,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new SuServer().execute(reboot_cmd);
+						new SuServer(Expsetup.this).execute(reboot_cmd);
 					}
 				}).setNegativeButton(R.string.no, close_if_no_reboot?new OnClickListener() {
 			@Override
@@ -404,7 +399,7 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		private boolean runCommand() {
-			new SuServer().execute(command);
+			new SuServer(Expsetup.this).execute(command);
 			if (requires_reboot) {
 				system_needs_reboot = true;
 			}
@@ -445,7 +440,7 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			SuServer s = new SuServer();
+			SuServer s = new SuServer(Expsetup.this);
 			if ((Boolean) newValue) {
 				s.execute("echo YES > /data/.epdata/theme_profile/" + filename);
 			} else {
@@ -454,92 +449,6 @@ public class Expsetup extends PreferenceActivity {
 			}
 			system_needs_reboot_recovery = true;
 			return true;
-		}
-
-	}
-
-	/*
-	 * Execute a command as root, showing a progress dialog in the meantime.
-	 */
-	private class SuServer extends AsyncTask<String, String, Void> {
-
-		private ProgressDialog pd;
-
-		@Override
-		protected void onPreExecute() {
-			pd = ProgressDialog.show(Expsetup.this, "Working",
-					"Starting process...", true, false);
-		}
-
-		public void execute(int command) {
-			// TODO Auto-generated method stub
-			this.execute(getString(command));
-		}
-
-		@Override
-		protected void onProgressUpdate(String... values) {
-			// TODO: Implement advanced dialog
-			// pd.setMessage(values[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			pd.dismiss();
-		}
-
-		@Override
-		protected Void doInBackground(String... args) {
-			final Process p;
-			try {
-				// Based on ideas from enomther et al.
-				p = Runtime.getRuntime().exec("su -c sh");
-				BufferedReader stdInput = new BufferedReader(
-						new InputStreamReader(p.getInputStream()));
-				BufferedReader stdError = new BufferedReader(
-						new InputStreamReader(p.getErrorStream()));
-				BufferedWriter stdOutput = new BufferedWriter(
-						new OutputStreamWriter(p.getOutputStream()));
-
-				stdOutput
-						.write(". /system/bin/exp_script.sh.lib && read_in_ep_config && "
-								+ args[0] + "; exit\n");
-				stdOutput.flush();
-				/*
-				 * We need to asynchronously find out when this process is done
-				 * so that we are able to see its interim output...so thread it
-				 */
-				Thread t = new Thread() {
-					public void run() {
-						try {
-							p.waitFor();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				};
-				t.start();
-
-				// Poor man's select()
-				while (t.isAlive()) {
-					String status = stdInput.readLine();
-					if (status != null) {
-						publishProgress(status);
-					}
-					Thread.sleep(20);
-				}
-
-				stdInput.close();
-				stdError.close();
-				stdOutput.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
 		}
 
 	}
