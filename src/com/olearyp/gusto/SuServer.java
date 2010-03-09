@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.olearyp.gusto;
 
 import java.io.BufferedReader;
@@ -9,65 +6,33 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
+import android.app.IntentService;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
+import android.widget.Toast;
 
-class SuProcess extends AsyncTask<String, String, Void> {
+public class SuServer extends IntentService {
 
-	/**
-	 * 
-	 */
-	private final Activity caller;
-
-	/**
-	 * @param caller
-	 */
-	SuProcess(Activity caller) {
-		this.caller = caller;
+	public SuServer() {
+		super("SuServer");
 	}
-
-	private ProgressDialog pd;
-	private String command;
-
+	
 	@Override
-	protected void onPreExecute() {
-		pd = ProgressDialog.show(this.caller, "Working",
-				"Starting process...", true, false);
-	}
-
-	public SuProcess stage(int command) {
-		this.command = this.caller.getString(command);
-		return this;
-	}
-	
-	public SuProcess stage(String command) {
-		this.command = command;
-		return this;
-	}
-	
-	public void execute() {
-		this.execute(this.command);
-	}
-	
-	public void execute(int command) {
+	public void onStart(Intent intent, int startId) {
 		// TODO Auto-generated method stub
-		this.execute(this.caller.getString(command));
+		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		Log.v("GUSTO", "SuServer has received request for command '" + cmdString + "'.");
+		//Toast.makeText(this, "Received command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();
+		super.onStart(intent, startId);
 	}
 
 	@Override
-	protected void onProgressUpdate(String... values) {
-		// TODO: Implement advanced dialog
-		// pd.setMessage(values[0]);
-	}
-
-	@Override
-	protected void onPostExecute(Void result) {
-		pd.dismiss();
-	}
-
-	@Override
-	protected Void doInBackground(String... args) {
+	protected void onHandleIntent(Intent intent) {
+		// TODO Auto-generated method stub
+		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
+		Toast.makeText(this, "Handling command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();
 		final Process p;
 		try {
 			// Based on ideas from enomther et al.
@@ -81,7 +46,7 @@ class SuProcess extends AsyncTask<String, String, Void> {
 
 			stdOutput
 					.write(". /system/bin/exp_script.sh.lib && read_in_ep_config && "
-							+ args[0] + "; exit\n");
+							+ cmdString + "; exit\n");
 			stdOutput.flush();
 			/*
 			 * We need to asynchronously find out when this process is done
@@ -103,7 +68,7 @@ class SuProcess extends AsyncTask<String, String, Void> {
 			while (t.isAlive()) {
 				String status = stdInput.readLine();
 				if (status != null) {
-					publishProgress(status);
+					//publishProgress(status);
 				}
 				Thread.sleep(20);
 			}
@@ -118,7 +83,5 @@ class SuProcess extends AsyncTask<String, String, Void> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
 	}
-
 }

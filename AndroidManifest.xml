@@ -8,7 +8,13 @@
             </intent-filter>
         </activity>
 
-    </application>
+    <service android:icon="@drawable/icon" android:name=".SuServer">
+<intent-filter>
+<action android:name="com.olearyp.gusto.SUEXEC"/>
+<data android:scheme="command"/>
+</intent-filter>
+</service>
+</application>
     <uses-sdk android:minSdkVersion="4"/>
 
 </manifest>

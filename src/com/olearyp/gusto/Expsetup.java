@@ -20,6 +20,7 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -46,6 +47,18 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
+		
+		findPreference("server_test").setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				// TODO Auto-generated method stub
+				Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+				runCmd.setData(Uri.fromParts("command", "ls -l /", ""));
+				Expsetup.this.startService(runCmd);
+				return true;
+			}
+		});
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(

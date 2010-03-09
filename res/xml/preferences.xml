@@ -9,7 +9,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android" android:title="GUSTO: GUI Used to Setup TheOfficial">
 
-<PreferenceScreen android:key="qcommands" android:title="QuickCommands"><Preference android:title="Reboot" android:key="reboot"></Preference>
+<Preference android:title="TEST SUSERVER" android:key="server_test"></Preference><PreferenceScreen android:key="qcommands" android:title="QuickCommands"><Preference android:title="Reboot" android:key="reboot"></Preference>
 <Preference android:key="reboot_recovery" android:title="Reboot to recovery"></Preference>
 <Preference android:key="reboot_bootloader" android:title="Reboot to bootloader"></Preference>
 <Preference android:title="Shutdown" android:key="reboot_poweroff"></Preference>
@@ -37,5 +37,6 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 </PreferenceScreen><CheckBoxPreference android:summaryOff="Do not remove odex files at boot" android:title="ODEX file handling" android:key="odex" android:summaryOn="Remove odex files at boot" android:persistent="false"></CheckBoxPreference>
 <Preference android:key="reodex" android:title="ODEX /data/app now" android:persistent="false"></Preference>
 <CheckBoxPreference android:title="Prioritize critical applications" android:key="pid_prioritize" android:summary="Increase priority of phone processes" android:persistent="false"></CheckBoxPreference><Preference android:title="Generate ep_log" android:key="ep_log" android:persistent="false"></Preference>
+
 
 </PreferenceScreen>
