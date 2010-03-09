@@ -12,13 +12,16 @@ import java.io.OutputStreamWriter;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Handler;
 
 class SuProcess extends AsyncTask<String, String, Void> {
 
-	/**
-	 * 
-	 */
 	private final Activity caller;
+
+	final Handler mHandler = new Handler();
+	public Handler getHandler() {
+		return mHandler;
+	}
 
 	/**
 	 * @param caller
