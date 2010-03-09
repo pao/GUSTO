@@ -9,11 +9,14 @@ import java.io.OutputStreamWriter;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 public class SuServer extends IntentService {
 
+	final Handler mHandler = new Handler();
+	
 	public SuServer() {
 		super("SuServer");
 	}
@@ -23,16 +26,15 @@ public class SuServer extends IntentService {
 		// TODO Auto-generated method stub
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
 		Log.v("GUSTO", "SuServer has received request for command '" + cmdString + "'.");
-		//Toast.makeText(this, "Received command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();
+//		Toast.makeText(this, "Received command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();
 		super.onStart(intent, startId);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		// TODO Auto-generated method stub
-		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		final String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
-		Toast.makeText(this, "Handling command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();
 		final Process p;
 		try {
 			// Based on ideas from enomther et al.
@@ -83,5 +85,10 @@ public class SuServer extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		mHandler.post(new Runnable(){
+			@Override
+			public void run() {
+				Toast.makeText(SuServer.this, "Completed command '" + cmdString + "'.", Toast.LENGTH_SHORT).show();				
+			}});
 	}
 }
