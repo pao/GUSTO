@@ -71,7 +71,7 @@ public class Expsetup extends PreferenceActivity {
 								R.string.create_log, new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								new SuServer(Expsetup.this) {
+								new SuProcess(Expsetup.this) {
 									@Override
 									protected void onPostExecute(Void result) {
 										String logfiles[] = getEpLogs();
@@ -101,7 +101,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer(Expsetup.this)
+						new SuProcess(Expsetup.this)
 								.execute("GLB_EP_MIN_CPU="
 										+ newValue.toString()
 										+ " && "
@@ -120,7 +120,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer(Expsetup.this)
+						new SuProcess(Expsetup.this)
 								.execute("GLB_EP_MAX_CPU="
 										+ newValue.toString()
 										+ " && "
@@ -157,7 +157,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuServer(Expsetup.this).execute("yes '" + newValue.toString()
+						new SuProcess(Expsetup.this).execute("yes '" + newValue.toString()
 								+ "' | set_ep_swappiness");
 						return true;
 					}
@@ -196,7 +196,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						new SuServer(Expsetup.this).execute("yes | odex_ep_data_apps");
+						new SuProcess(Expsetup.this).execute("yes | odex_ep_data_apps");
 						return true;
 					}
 				});
@@ -263,7 +263,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new SuServer(Expsetup.this).execute(reboot_cmd);
+						new SuProcess(Expsetup.this).execute(reboot_cmd);
 					}
 				}).setNegativeButton(R.string.no, close_if_no_reboot?new OnClickListener() {
 			@Override
@@ -399,7 +399,7 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		private boolean runCommand() {
-			new SuServer(Expsetup.this).execute(command);
+			new SuProcess(Expsetup.this).execute(command);
 			if (requires_reboot) {
 				system_needs_reboot = true;
 			}
@@ -440,7 +440,7 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			SuServer s = new SuServer(Expsetup.this);
+			SuProcess s = new SuProcess(Expsetup.this);
 			if ((Boolean) newValue) {
 				s.execute("echo YES > /data/.epdata/theme_profile/" + filename);
 			} else {
