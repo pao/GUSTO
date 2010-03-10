@@ -42,4 +42,6 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <item>@string/reboot_required</item>
 <item>@string/reboot_recovery_required</item>
 </string-array>
+<string name="reboot_recovery_doit_msg">Flash required, select to reboot to recovery</string>
+<string name="reboot_doit_msg">Select to reboot</string>
 </resources>

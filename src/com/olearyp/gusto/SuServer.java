@@ -21,19 +21,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 public class SuServer extends IntentService {
 
 	private static final int SUSERVER_REBOOT_NOTIFICATION = 0x0043B007;
 
-	final Handler mHandler = new Handler();
-
 	private NotificationManager nm = null;
 
-	private SharedPreferences settings;
+	private SharedPreferences settings = null;
 
 	public SuServer() {
 		super("SuServer");
@@ -41,21 +37,17 @@ public class SuServer extends IntentService {
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		// TODO Auto-generated method stub
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
 		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
 			cmdString = getString(Integer.parseInt(cmdString));
 		}
 		Log.v("GUSTO", "SuServer has received request for command '"
 				+ cmdString + "'.");
-		// Toast.makeText(this, "Received command '" + cmdString + "'.",
-		// Toast.LENGTH_SHORT).show();
 		super.onStart(intent, startId);
 	}
 
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated method stub
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 		super.onCreate();
@@ -79,7 +71,7 @@ public class SuServer extends IntentService {
 					getString(R.string.reboot_recovery_required_msg), System
 							.currentTimeMillis());
 			note.setLatestEventInfo(this, "GUSTO reboot request",
-					getString(R.string.reboot_recovery_required_msg),
+					getString(R.string.reboot_recovery_doit_msg),
 					contentIntent);
 			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
 		} else if (getServerState().equals(getString(R.string.reboot_required))) {
@@ -93,7 +85,7 @@ public class SuServer extends IntentService {
 					getString(R.string.reboot_required_msg), System
 							.currentTimeMillis());
 			note.setLatestEventInfo(this, "GUSTO reboot request",
-					getString(R.string.reboot_required_msg), contentIntent);
+					getString(R.string.reboot_doit_msg), contentIntent);
 			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
 		}
 		super.onDestroy();
@@ -101,7 +93,6 @@ public class SuServer extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		// TODO Auto-generated method stub
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
 		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
 			cmdString = getString(Integer.parseInt(cmdString));
@@ -176,17 +167,6 @@ public class SuServer extends IntentService {
 		if (state != null) {
 			setServerState(state);
 		}
-
-		final String cmdCopy = cmdString;
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(
-						SuServer.this,
-						"State is now '" + getServerState() + "'. Command was '"
-								+ cmdCopy + "'.", Toast.LENGTH_SHORT).show();
-			}
-		});
 	}
 
 	private final int getIndex(String specificValue) {

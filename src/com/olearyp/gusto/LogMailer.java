@@ -14,7 +14,6 @@ public class LogMailer extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		String logfiles[] = getEpLogs();
 		Arrays.sort(logfiles);
 		context.startActivity(Intent.createChooser(

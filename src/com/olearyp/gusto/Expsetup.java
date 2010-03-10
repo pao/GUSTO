@@ -19,6 +19,7 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -36,8 +37,6 @@ import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
-	private boolean system_needs_reboot = false;
-	private boolean system_needs_reboot_recovery = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -247,17 +246,13 @@ public class Expsetup extends PreferenceActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (system_needs_reboot_recovery) {
-				rebootDialog(R.string.reboot_reflash_msg,
-						R.string.reboot_recovery, true).show();
-				return true;
-			} else if (system_needs_reboot) {
-				rebootDialog(R.string.reboot_required_msg, R.string.reboot,
-						true).show();
-				return true;
-			}
+			/*
+			 * If you've left, assume You Know What You Are Doing and reset the
+			 * serverState.
+			 */
+			getSharedPreferences("serverState", Context.MODE_PRIVATE).edit()
+					.putString("serverState", "none").commit();
 		}
 		return super.onKeyDown(keyCode, event);
 	}
@@ -281,7 +276,6 @@ public class Expsetup extends PreferenceActivity {
 	}
 
 	protected void sendCommandById(int cmd_res, String state) {
-		// TODO Auto-generated method stub
 		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
 		runCmd.setData(
 				Uri.fromParts("commandid", Integer.toString(cmd_res), ""))
