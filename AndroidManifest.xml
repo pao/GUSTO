@@ -26,7 +26,8 @@
 		<receiver android:name=".ResetServerState">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
-			</intent-filter>
+			<action android:name="com.olearyp.gusto.RESET_SERVER_STATE"></action>
+</intent-filter>
 		</receiver>
 	</application>
 	<uses-sdk android:minSdkVersion="4" />

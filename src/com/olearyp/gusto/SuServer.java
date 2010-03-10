@@ -52,12 +52,12 @@ public class SuServer extends IntentService {
 	public void onCreate() {
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
-		
+
 		Notification note = new Notification(R.drawable.icon,
-				"Processing setting...", System
-						.currentTimeMillis());
+				"Processing setting...", System.currentTimeMillis());
 		note.setLatestEventInfo(this, "GUSTO",
-				"GUSTO is processing settings...", PendingIntent.getBroadcast(this, 0, null, 0));
+				"GUSTO is processing settings...", PendingIntent.getBroadcast(
+						this, 0, null, 0));
 		nm.notify(STATUS_NOTIFICATION, note);
 
 		super.onCreate();
@@ -72,7 +72,8 @@ public class SuServer extends IntentService {
 		// We're done, kill the "running" notification
 		nm.cancel(STATUS_NOTIFICATION);
 		// Create or modify reboot notification, if needed
-		if (getServerState().equals(getString(R.string.reboot_recovery_required))) {
+		if (getServerState().equals(
+				getString(R.string.reboot_recovery_required))) {
 			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
 					.fromParts("commandid", Integer
 							.toString(R.string.reboot_recovery), ""));
@@ -82,9 +83,12 @@ public class SuServer extends IntentService {
 			Notification note = new Notification(R.drawable.status_reboot,
 					getString(R.string.reboot_recovery_required_msg), System
 							.currentTimeMillis());
-			note.setLatestEventInfo(this, "GUSTO reboot request",
-					getString(R.string.reboot_recovery_doit_msg),
-					contentIntent);
+			note
+					.setLatestEventInfo(this, "GUSTO reboot request",
+							getString(R.string.reboot_recovery_doit_msg),
+							contentIntent);
+			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
 			nm.notify(REBOOT_NOTIFICATION, note);
 		} else if (getServerState().equals(getString(R.string.reboot_required))) {
 			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
@@ -98,6 +102,8 @@ public class SuServer extends IntentService {
 							.currentTimeMillis());
 			note.setLatestEventInfo(this, "GUSTO reboot request",
 					getString(R.string.reboot_doit_msg), contentIntent);
+			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
 			nm.notify(REBOOT_NOTIFICATION, note);
 		}
 		super.onDestroy();

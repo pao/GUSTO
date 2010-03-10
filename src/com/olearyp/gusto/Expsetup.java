@@ -19,7 +19,6 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -33,7 +32,6 @@ import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
-import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
@@ -242,19 +240,6 @@ public class Expsetup extends PreferenceActivity {
 				new ExpThemeProfileChangeListener("Mms.apk"));
 		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
 				config, "Mms.apk"));
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			/*
-			 * If you've left, assume You Know What You Are Doing and reset the
-			 * serverState.
-			 */
-			getSharedPreferences("serverState", Context.MODE_PRIVATE).edit()
-					.putString("serverState", "none").commit();
-		}
-		return super.onKeyDown(keyCode, event);
 	}
 
 	private Builder rebootDialog(int message, final int reboot_cmd,
