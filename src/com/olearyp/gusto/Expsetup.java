@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +24,6 @@ import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -339,51 +337,6 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		return config;
-	}
-
-	private String[] getEpLogs() {
-		return Environment.getExternalStorageDirectory().list(
-				new FilenameFilter() {
-
-					@Override
-					public boolean accept(File dir, String filename) {
-						return filename.startsWith("ep_log_")
-								&& filename.endsWith(".log");
-					}
-				});
-	}
-
-	/*
-	 * Implementation of rot13 algorithm to hide email addresses from spambots
-	 * looking through the sourcecode.
-	 */
-	private String decode_address(String string) {
-		StringBuffer tempReturn = new StringBuffer();
-		for (int i = 0; i < string.length(); i++) {
-			int abyte = string.charAt(i);
-			int cap = abyte & 32;
-			abyte &= ~cap;
-			abyte = ((abyte >= 'A') && (abyte <= 'Z') ? ((abyte - 'A' + 13) % 26 + 'A')
-					: abyte)
-					| cap;
-			tempReturn.append((char) abyte);
-		}
-		return tempReturn.toString();
-	}
-
-	/* Email an ep_log file as attachment to enomther */
-	private void sendFile(String logfile) {
-		// rabzgure is going to love me forever
-		// TODO: Refactor the email address string
-		Intent sendIntent = new Intent(Intent.ACTION_SEND);
-		sendIntent.setType("text/plain");
-		sendIntent.putExtra(Intent.EXTRA_EMAIL,
-				new String[] { decode_address("rabzgure") + "@"
-						+ decode_address("tznvy.pbz") });
-		sendIntent.putExtra(Intent.EXTRA_SUBJECT, "ep_log report from user");
-		sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/"
-				+ logfile));
-		startActivity(Intent.createChooser(sendIntent, "Send ep_log via..."));
 	}
 
 	private void sendCommand(String command, String state) {
