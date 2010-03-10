@@ -47,16 +47,16 @@ public class Expsetup extends PreferenceActivity {
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_msg,
+				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_msg,
 						R.string.reboot));
 		findPreference("reboot_recovery").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_recovery_msg,
+				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_recovery_msg,
 						R.string.reboot_recovery));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_bootloader_msg,
+				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_bootloader_msg,
 						R.string.reboot_bootload));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.shutdown_msg,
+				new RebootPreferenceListener(R.string.shutdown_alert_title, R.string.shutdown_msg,
 						R.string.shutdown));
 		findPreference("rwsystem").setOnPreferenceClickListener(
 				new ExpPreferenceListener(R.string.rwsystem));
@@ -68,7 +68,8 @@ public class Expsetup extends PreferenceActivity {
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						new AlertDialog.Builder(Expsetup.this).setMessage(
+						new AlertDialog.Builder(Expsetup.this).setTitle(
+								R.string.ep_log_alert_title).setMessage(
 								R.string.ep_log_confirm_msg).setPositiveButton(
 								R.string.create_log, new OnClickListener() {
 									@Override
@@ -250,35 +251,38 @@ public class Expsetup extends PreferenceActivity {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			String reboot_type = getSharedPreferences("serverState",
 					Context.MODE_PRIVATE).getString("serverState", "none");
-			if (reboot_type.equals(getString(R.string.reboot_recovery_required))) {
-				rebootDialog(R.string.reboot_reflash_msg,
+			if (reboot_type
+					.equals(getString(R.string.reboot_recovery_required))) {
+				rebootDialog(R.string.reboot_alert_title, R.string.reboot_reflash_msg,
 						R.string.reboot_recovery, true).show();
 				return true;
 			} else if (reboot_type.equals(getString(R.string.reboot_required))) {
-				rebootDialog(R.string.reboot_request_msg, R.string.reboot,
-						true).show();
+				rebootDialog(R.string.reboot_alert_title, R.string.reboot_request_msg, R.string.reboot, true)
+						.show();
 				return true;
 			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private Builder rebootDialog(int message, final int reboot_cmd,
+	private Builder rebootDialog(int title, int message, final int reboot_cmd,
 			boolean close_if_no_reboot) {
-		return new AlertDialog.Builder(Expsetup.this).setMessage(
-				getString(message)).setPositiveButton(R.string.yes,
-				new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						sendCommandById(reboot_cmd, "none");
-					}
-				}).setNegativeButton(R.string.no,
-				close_if_no_reboot ? new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						Expsetup.this.finish();
-					}
-				} : null);
+		return new AlertDialog.Builder(Expsetup.this).setTitle(title)
+				.setMessage(getString(message)).setPositiveButton(R.string.yes,
+						new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								sendCommandById(reboot_cmd, "none");
+							}
+						}).setNegativeButton(R.string.no,
+						close_if_no_reboot ? new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Expsetup.this.finish();
+							}
+						} : null);
 	}
 
 	protected void sendCommandById(int cmd_res, String state) {
@@ -398,15 +402,17 @@ public class Expsetup extends PreferenceActivity {
 	private class RebootPreferenceListener implements OnPreferenceClickListener {
 		int message;
 		int command;
+		private int title;
 
-		public RebootPreferenceListener(int message, int command) {
+		public RebootPreferenceListener(int title, int message, int command) {
+			this.title = title;
 			this.message = message;
 			this.command = command;
 		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			rebootDialog(message, command, false).show();
+			rebootDialog(title, message, command, false).show();
 			return false;
 		}
 	}
