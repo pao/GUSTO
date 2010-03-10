@@ -25,7 +25,9 @@ import android.util.Log;
 
 public class SuServer extends IntentService {
 
-	private static final int SUSERVER_REBOOT_NOTIFICATION = 0x0043B007;
+	private static final int REBOOT_NOTIFICATION = 0x0043B007;
+
+	private static final int STATUS_NOTIFICATION = 0x0057A705;
 
 	private NotificationManager nm = null;
 
@@ -50,6 +52,14 @@ public class SuServer extends IntentService {
 	public void onCreate() {
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
+		
+		Notification note = new Notification(R.drawable.icon,
+				"Processing setting...", System
+						.currentTimeMillis());
+		note.setLatestEventInfo(this, "GUSTO",
+				"GUSTO is processing settings...", PendingIntent.getBroadcast(this, 0, null, 0));
+		nm.notify(STATUS_NOTIFICATION, note);
+
 		super.onCreate();
 	}
 
@@ -59,6 +69,8 @@ public class SuServer extends IntentService {
 
 	@Override
 	public void onDestroy() {
+		// We're done, kill the "running" notification
+		nm.cancel(STATUS_NOTIFICATION);
 		// Create or modify reboot notification, if needed
 		if (getServerState().equals(getString(R.string.reboot_recovery_required))) {
 			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
@@ -67,13 +79,13 @@ public class SuServer extends IntentService {
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
 
-			Notification note = new Notification(R.drawable.icon,
+			Notification note = new Notification(R.drawable.status_reboot,
 					getString(R.string.reboot_recovery_required_msg), System
 							.currentTimeMillis());
 			note.setLatestEventInfo(this, "GUSTO reboot request",
 					getString(R.string.reboot_recovery_doit_msg),
 					contentIntent);
-			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
+			nm.notify(REBOOT_NOTIFICATION, note);
 		} else if (getServerState().equals(getString(R.string.reboot_required))) {
 			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
 					.fromParts("commandid", Integer.toString(R.string.reboot),
@@ -81,12 +93,12 @@ public class SuServer extends IntentService {
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
 
-			Notification note = new Notification(R.drawable.icon,
+			Notification note = new Notification(R.drawable.status_reboot,
 					getString(R.string.reboot_required_msg), System
 							.currentTimeMillis());
 			note.setLatestEventInfo(this, "GUSTO reboot request",
 					getString(R.string.reboot_doit_msg), contentIntent);
-			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
+			nm.notify(REBOOT_NOTIFICATION, note);
 		}
 		super.onDestroy();
 	}
@@ -104,6 +116,7 @@ public class SuServer extends IntentService {
 				.getStringExtra("com.olearyp.gusto.POST_EX_URI");
 
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
+
 		final Process p;
 		try {
 			// Based on ideas from enomther et al.
