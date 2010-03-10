@@ -53,7 +53,7 @@ public class SuServer extends IntentService {
 	@Override
 	public void onDestroy() {
 		// Create or modify reboot notification, if needed
-		//nm.
+		// nm.
 		super.onDestroy();
 	}
 
@@ -65,21 +65,10 @@ public class SuServer extends IntentService {
 			cmdString = getString(Integer.parseInt(cmdString));
 		}
 		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
-		final String preExecuteIntent = intent
-				.getStringExtra("com.olearyp.gusto.PRE_EX_INTENT");
-		final String preExecuteUri = intent
-				.getStringExtra("com.olearyp.gusto.PRE_EX_URI");
 		final String postExecuteIntent = intent
 				.getStringExtra("com.olearyp.gusto.POST_EX_INTENT");
 		final String postExecuteUri = intent
 				.getStringExtra("com.olearyp.gusto.POST_EX_URI");
-
-		if (preExecuteIntent != null) {
-			Intent intentX = new Intent(preExecuteIntent);
-			intentX.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intentX.setData(Uri.parse(preExecuteUri));
-			startActivity(intentX);
-		}
 
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
 		final Process p;
@@ -136,8 +125,10 @@ public class SuServer extends IntentService {
 		if (postExecuteIntent != null) {
 			Intent intentX = new Intent(postExecuteIntent);
 			intentX.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intentX.setData(Uri.parse(postExecuteUri));
-			startActivity(intentX);
+			if (postExecuteUri != null) {
+				intentX.setData(Uri.parse(postExecuteUri));
+			}
+			sendBroadcast(intentX);
 		}
 
 		if (state != null) {

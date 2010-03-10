@@ -18,7 +18,8 @@ public class LogMailer extends BroadcastReceiver {
 		String logfiles[] = getEpLogs();
 		Arrays.sort(logfiles);
 		context.startActivity(Intent.createChooser(
-				sendFile(logfiles[logfiles.length - 1]), "Send ep_log via..."));
+				sendFile(logfiles[logfiles.length - 1]), "Send ep_log via...")
+				.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 	}
 
 	private String[] getEpLogs() {
