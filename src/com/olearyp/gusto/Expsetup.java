@@ -20,7 +20,6 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -47,28 +46,34 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
-		
-		findPreference("server_test").setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// TODO Auto-generated method stub
-				Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
-				runCmd.setData(Uri.fromParts("command", "ls -l /", ""));
-				Expsetup.this.startService(runCmd);
-				return true;
-			}
-		});
+
+		findPreference("server_test").setOnPreferenceClickListener(
+				new OnPreferenceClickListener() {
+
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						// TODO Auto-generated method stub
+						Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+						runCmd.setData(Uri.fromParts("command", "ls -l /", ""))
+								.putExtra("com.olearyp.gusto.STATE", "none");
+						Expsetup.this.startService(runCmd);
+						return true;
+					}
+				});
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_msg, R.string.reboot));
+				new RebootPreferenceListener(R.string.reboot_msg,
+						R.string.reboot));
 		findPreference("reboot_recovery").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_recovery_msg, R.string.reboot_recovery));
+				new RebootPreferenceListener(R.string.reboot_recovery_msg,
+						R.string.reboot_recovery));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_bootloader_msg, R.string.reboot_bootload));
+				new RebootPreferenceListener(R.string.reboot_bootloader_msg,
+						R.string.reboot_bootload));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.shutdown_msg, R.string.shutdown));
+				new RebootPreferenceListener(R.string.shutdown_msg,
+						R.string.shutdown));
 		findPreference("rwsystem").setOnPreferenceClickListener(
 				new ExpPreferenceListener(R.string.rwsystem));
 		findPreference("rosystem").setOnPreferenceClickListener(
@@ -82,19 +87,22 @@ public class Expsetup extends PreferenceActivity {
 						new AlertDialog.Builder(Expsetup.this).setMessage(
 								R.string.ep_log_confirm_msg).setPositiveButton(
 								R.string.create_log, new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								new SuProcess(Expsetup.this) {
 									@Override
-									protected void onPostExecute(Void result) {
-										String logfiles[] = getEpLogs();
-										Arrays.sort(logfiles);
-										sendFile(logfiles[logfiles.length - 1]);
-										super.onPostExecute(result);
+									public void onClick(DialogInterface dialog,
+											int which) {
+										new SuProcess(Expsetup.this) {
+											@Override
+											protected void onPostExecute(
+													Void result) {
+												String logfiles[] = getEpLogs();
+												Arrays.sort(logfiles);
+												sendFile(logfiles[logfiles.length - 1]);
+												super.onPostExecute(result);
+											}
+										}.execute("gen_ep_logfile");
 									}
-								}.execute("gen_ep_logfile");
-							}
-						}).setNegativeButton(R.string.return_to_menu, null).show();
+								}).setNegativeButton(R.string.return_to_menu,
+								null).show();
 						return true;
 					}
 				});
@@ -170,8 +178,9 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuProcess(Expsetup.this).execute("yes '" + newValue.toString()
-								+ "' | set_ep_swappiness");
+						new SuProcess(Expsetup.this)
+								.execute("yes '" + newValue.toString()
+										+ "' | set_ep_swappiness");
 						return true;
 					}
 				});
@@ -209,7 +218,8 @@ public class Expsetup extends PreferenceActivity {
 				new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
-						new SuProcess(Expsetup.this).execute("yes | odex_ep_data_apps");
+						new SuProcess(Expsetup.this)
+								.execute("yes | odex_ep_data_apps");
 						return true;
 					}
 				});
@@ -262,15 +272,16 @@ public class Expsetup extends PreferenceActivity {
 						R.string.reboot_recovery, true).show();
 				return true;
 			} else if (system_needs_reboot) {
-				rebootDialog(R.string.reboot_required_msg, R.string.reboot, true)
-						.show();
+				rebootDialog(R.string.reboot_required_msg, R.string.reboot,
+						true).show();
 				return true;
 			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private Builder rebootDialog(int message, final int reboot_cmd, boolean close_if_no_reboot) {
+	private Builder rebootDialog(int message, final int reboot_cmd,
+			boolean close_if_no_reboot) {
 		return new AlertDialog.Builder(Expsetup.this).setMessage(
 				getString(message)).setPositiveButton(R.string.yes,
 				new OnClickListener() {
@@ -278,12 +289,13 @@ public class Expsetup extends PreferenceActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						new SuProcess(Expsetup.this).execute(reboot_cmd);
 					}
-				}).setNegativeButton(R.string.no, close_if_no_reboot?new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Expsetup.this.finish();
-			}
-		}:null);
+				}).setNegativeButton(R.string.no,
+				close_if_no_reboot ? new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Expsetup.this.finish();
+					}
+				} : null);
 	}
 
 	private boolean isTrueish(Map<String, String> config, String key) {
@@ -390,7 +402,7 @@ public class Expsetup extends PreferenceActivity {
 		public ExpPreferenceListener(int command) {
 			this(getString(command));
 		}
-		
+
 		public ExpPreferenceListener(String command) {
 			this(command, false);
 		}
@@ -419,11 +431,11 @@ public class Expsetup extends PreferenceActivity {
 			return true;
 		}
 	}
-	
+
 	private class RebootPreferenceListener implements OnPreferenceClickListener {
 		int message;
 		int command;
-		
+
 		public RebootPreferenceListener(int message, int command) {
 			this.message = message;
 			this.command = command;
