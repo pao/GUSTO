@@ -7,6 +7,8 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
+    <string name="reboot_required">reboot-required</string>
+    <string name="reboot_recovery_required">reboot-recovery-required</string>
     <string name="shutdown_msg">Do you wish to shutdown?</string>
     <string name="reboot_bootloader_msg">Do you wish to reboot into the bootloader?</string>
     <string name="reboot_recovery_msg">Do you wish to reboot into recovery?</string>
@@ -14,7 +16,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
     <string name="create_log">Create log</string>
     <string name="ep_log_confirm_msg">This option creates a file with debugging information which will be sent to enomther to diagnose problems you may have with TheOfficial.  Please, only confirm this option if enomther has requested an ep_log.  This will include, among other things, a list of your applications and may reveal your email address.</string>
     <string name="return_to_menu">Return to menu</string>
-    <string name="reboot_required_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
+    <string name="reboot_required_msg">Reboot is required</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="reboot_reflash_msg">Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?</string>
@@ -25,7 +27,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
     <string name="reboot_bootload">start reboot-bootload</string>
     <string name="reboot_recovery">start reboot-recovery</string>
     <string name="reboot">start reboot</string>
-    <string name="hello">Hello World, Expsetup!</string>
+    
     <string name="app_name">GUSTO</string>
 
 
@@ -34,5 +36,10 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <item>384000</item>
 <item>528000</item>
 
+</string-array>
+<string name="reboot_recovery_required_msg">Reboot to recovery is required</string>
+<string-array name="server_states"><item>none</item>
+<item>@string/reboot_required</item>
+<item>@string/reboot_recovery_required</item>
 </string-array>
 </resources>

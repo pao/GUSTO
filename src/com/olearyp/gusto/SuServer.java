@@ -1,3 +1,10 @@
+/* Copyright 2010 Patrick O'Leary.  All rights reserved.
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only.
+ * See the file CDDL.txt in this distribution or
+ * http://opensource.org/licenses/cddl1.php for details.
+ */
+
 package com.olearyp.gusto;
 
 import java.io.BufferedReader;
@@ -7,9 +14,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -17,13 +27,13 @@ import android.widget.Toast;
 
 public class SuServer extends IntentService {
 
+	private static final int SUSERVER_REBOOT_NOTIFICATION = 0x0043B007;
+
 	final Handler mHandler = new Handler();
 
-	private String serverState;
-
 	private NotificationManager nm = null;
-	private static String[] stateIndex = { "none", "reboot-required",
-			"reboot-recovery-required" };
+
+	private SharedPreferences settings;
 
 	public SuServer() {
 		super("SuServer");
@@ -47,13 +57,45 @@ public class SuServer extends IntentService {
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 		super.onCreate();
+	}
+
+	private String getServerState() {
+		return settings.getString("serverState", "none");
 	}
 
 	@Override
 	public void onDestroy() {
 		// Create or modify reboot notification, if needed
-		// nm.
+		if (getServerState().equals(getString(R.string.reboot_recovery_required))) {
+			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
+					.fromParts("commandid", Integer
+							.toString(R.string.reboot_recovery), ""));
+			PendingIntent contentIntent = PendingIntent.getService(this, 0,
+					intent, 0);
+
+			Notification note = new Notification(R.drawable.icon,
+					getString(R.string.reboot_recovery_required_msg), System
+							.currentTimeMillis());
+			note.setLatestEventInfo(this, "GUSTO reboot request",
+					getString(R.string.reboot_recovery_required_msg),
+					contentIntent);
+			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
+		} else if (getServerState().equals(getString(R.string.reboot_required))) {
+			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
+					.fromParts("commandid", Integer.toString(R.string.reboot),
+							""));
+			PendingIntent contentIntent = PendingIntent.getService(this, 0,
+					intent, 0);
+
+			Notification note = new Notification(R.drawable.icon,
+					getString(R.string.reboot_required_msg), System
+							.currentTimeMillis());
+			note.setLatestEventInfo(this, "GUSTO reboot request",
+					getString(R.string.reboot_required_msg), contentIntent);
+			nm.notify(SUSERVER_REBOOT_NOTIFICATION, note);
+		}
 		super.onDestroy();
 	}
 
@@ -141,13 +183,15 @@ public class SuServer extends IntentService {
 			public void run() {
 				Toast.makeText(
 						SuServer.this,
-						"State is now '" + serverState + "'. Command was '"
+						"State is now '" + getServerState() + "'. Command was '"
 								+ cmdCopy + "'.", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
 
-	private static final int getIndex(String specificValue) {
+	private final int getIndex(String specificValue) {
+		String[] stateIndex = getResources().getStringArray(
+				R.array.server_states);
 		for (int i = 0; i < stateIndex.length; i++) {
 			if (stateIndex[i].equals(specificValue)) {
 				return i;
@@ -157,8 +201,9 @@ public class SuServer extends IntentService {
 	}
 
 	private void setServerState(String state) {
-		if (getIndex(state) > getIndex(serverState)) {
-			this.serverState = state;
+		if (getIndex(state) > getIndex(getServerState())) {
+			settings.edit().putString("serverState", state).commit();
 		}
 	}
+
 }
