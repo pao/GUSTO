@@ -11,9 +11,14 @@
     <service android:icon="@drawable/icon" android:name=".SuServer">
 <intent-filter>
 <action android:name="com.olearyp.gusto.SUEXEC"/>
-<data android:scheme="command"/>
+<data android:scheme="command"></data>
+<data android:scheme="commandid"></data>
 </intent-filter>
+
 </service>
+<receiver android:name=".LogMailer"><intent-filter><action android:name="com.olearyp.gusto.MAIL_LOG"></action>
+</intent-filter>
+</receiver>
 </application>
     <uses-sdk android:minSdkVersion="4"/>
 
