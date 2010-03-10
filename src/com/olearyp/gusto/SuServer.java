@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import android.app.IntentService;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -18,6 +20,8 @@ public class SuServer extends IntentService {
 	final Handler mHandler = new Handler();
 
 	private String serverState;
+
+	private NotificationManager nm = null;
 	private static String[] stateIndex = { "none", "reboot-required",
 			"reboot-recovery-required" };
 
@@ -29,6 +33,9 @@ public class SuServer extends IntentService {
 	public void onStart(Intent intent, int startId) {
 		// TODO Auto-generated method stub
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
+			cmdString = getString(Integer.parseInt(cmdString));
+		}
 		Log.v("GUSTO", "SuServer has received request for command '"
 				+ cmdString + "'.");
 		// Toast.makeText(this, "Received command '" + cmdString + "'.",
@@ -37,10 +44,26 @@ public class SuServer extends IntentService {
 	}
 
 	@Override
+	public void onCreate() {
+		// TODO Auto-generated method stub
+		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		super.onCreate();
+	}
+
+	@Override
+	public void onDestroy() {
+		// Create or modify reboot notification, if needed
+		//nm.
+		super.onDestroy();
+	}
+
+	@Override
 	protected void onHandleIntent(Intent intent) {
 		// TODO Auto-generated method stub
-		final String cmdString = Uri.parse(intent.toUri(0))
-				.getSchemeSpecificPart();
+		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
+			cmdString = getString(Integer.parseInt(cmdString));
+		}
 		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
 		final String preExecuteIntent = intent
 				.getStringExtra("com.olearyp.gusto.PRE_EX_INTENT");
@@ -121,12 +144,14 @@ public class SuServer extends IntentService {
 			setServerState(state);
 		}
 
+		final String cmdCopy = cmdString;
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(SuServer.this,
-						"State is now '" + serverState + "'. Command was '" + cmdString + "'.",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(
+						SuServer.this,
+						"State is now '" + serverState + "'. Command was '"
+								+ cmdCopy + "'.", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

@@ -284,7 +284,7 @@ public class Expsetup extends PreferenceActivity {
 				new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new SuProcess(Expsetup.this).execute(reboot_cmd);
+						sendCommandByResource(reboot_cmd, "none");
 					}
 				}).setNegativeButton(R.string.no,
 				close_if_no_reboot ? new OnClickListener() {
@@ -293,6 +293,14 @@ public class Expsetup extends PreferenceActivity {
 						Expsetup.this.finish();
 					}
 				} : null);
+	}
+
+	protected void sendCommandByResource(int cmd_res, String state) {
+		// TODO Auto-generated method stub
+		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+		runCmd.setData(Uri.fromParts("commandid", Integer.toString(cmd_res), ""))
+				.putExtra("com.olearyp.gusto.STATE", state);
+		Expsetup.this.startService(runCmd);
 	}
 
 	private boolean isTrueish(Map<String, String> config, String key) {
@@ -402,9 +410,11 @@ public class Expsetup extends PreferenceActivity {
 
 		private String command = "";
 		private boolean requires_reboot = false;
+		private int commandid = 0;
 
-		public ExpPreferenceListener(int command) {
-			this(getString(command));
+		public ExpPreferenceListener(int commandid) {
+			super();
+			this.commandid  = commandid;
 		}
 
 		public ExpPreferenceListener(String command) {
@@ -432,7 +442,11 @@ public class Expsetup extends PreferenceActivity {
 //			if (requires_reboot) {
 //				system_needs_reboot = true;
 //			}
-			sendCommand(command, requires_reboot?"reboot-required":"none");
+			if(commandid > 0) {
+				sendCommandByResource(commandid, requires_reboot?"reboot-required":"none");
+			} else {
+				sendCommand(command, requires_reboot?"reboot-required":"none");
+			}
 			return true;
 		}
 	}
@@ -470,14 +484,11 @@ public class Expsetup extends PreferenceActivity {
 
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			SuProcess s = new SuProcess(Expsetup.this);
 			if ((Boolean) newValue) {
-				s.execute("echo YES > /data/.epdata/theme_profile/" + filename);
+				sendCommand("echo YES > /data/.epdata/theme_profile/" + filename, "reboot-recovery-required");
 			} else {
-				s.execute("busybox rm -rf /data/.epdata/theme_profile/"
-						+ filename);
+				sendCommand("busybox rm -rf /data/.epdata/theme_profile/" + filename, "reboot-recovery-required");
 			}
-			system_needs_reboot_recovery = true;
 			return true;
 		}
 
