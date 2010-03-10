@@ -53,10 +53,7 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceClick(Preference preference) {
 						// TODO Auto-generated method stub
-						Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
-						runCmd.setData(Uri.fromParts("command", "ls -l /", ""))
-								.putExtra("com.olearyp.gusto.STATE", "none");
-						Expsetup.this.startService(runCmd);
+						sendCommand("ls -l /", "none");
 						return true;
 					}
 				});
@@ -392,6 +389,13 @@ public class Expsetup extends PreferenceActivity {
 		startActivity(Intent.createChooser(sendIntent, "Send ep_log via..."));
 	}
 
+	private void sendCommand(String command, String state) {
+		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+		runCmd.setData(Uri.fromParts("command", command, ""))
+				.putExtra("com.olearyp.gusto.STATE", state);
+		Expsetup.this.startService(runCmd);
+	}
+
 	/* Generic listener which executes a command as root */
 	private final class ExpPreferenceListener implements
 			OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -424,10 +428,11 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		private boolean runCommand() {
-			new SuProcess(Expsetup.this).execute(command);
-			if (requires_reboot) {
-				system_needs_reboot = true;
-			}
+//			new SuProcess(Expsetup.this).execute(command);
+//			if (requires_reboot) {
+//				system_needs_reboot = true;
+//			}
+			sendCommand(command, requires_reboot?"reboot-required":"none");
 			return true;
 		}
 	}

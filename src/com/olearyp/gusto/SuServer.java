@@ -125,7 +125,7 @@ public class SuServer extends IntentService {
 			@Override
 			public void run() {
 				Toast.makeText(SuServer.this,
-						"State is now '" + serverState + "'.",
+						"State is now '" + serverState + "'. Command was '" + cmdString + "'.",
 						Toast.LENGTH_SHORT).show();
 			}
 		});
