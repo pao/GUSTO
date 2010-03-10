@@ -33,6 +33,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
@@ -46,17 +47,6 @@ public class Expsetup extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
-
-		findPreference("server_test").setOnPreferenceClickListener(
-				new OnPreferenceClickListener() {
-
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						// TODO Auto-generated method stub
-						sendCommand("ls -l /", "none");
-						return true;
-					}
-				});
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
@@ -119,12 +109,11 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuProcess(Expsetup.this)
-								.execute("GLB_EP_MIN_CPU="
+						sendCommand("GLB_EP_MIN_CPU="
 										+ newValue.toString()
 										+ " && "
 										+ "write_out_ep_config && "
-										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
+										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq", "none");
 						String[] legalfreqs = freqs.subList(
 								freqs.indexOf(newValue), freqs.size()).toArray(
 								new String[0]);
@@ -138,12 +127,11 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuProcess(Expsetup.this)
-								.execute("GLB_EP_MAX_CPU="
+						sendCommand("GLB_EP_MAX_CPU="
 										+ newValue.toString()
 										+ " && "
 										+ "write_out_ep_config && "
-										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
+										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq", "none");
 						String[] legalfreqs = freqs.subList(0,
 								freqs.indexOf(newValue) + 1).toArray(
 								new String[0]);
@@ -175,9 +163,8 @@ public class Expsetup extends PreferenceActivity {
 					@Override
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
-						new SuProcess(Expsetup.this)
-								.execute("yes '" + newValue.toString()
-										+ "' | set_ep_swappiness");
+						sendCommand("yes '" + newValue.toString()
+										+ "' | set_ep_swappiness", "none");
 						return true;
 					}
 				});
@@ -212,14 +199,7 @@ public class Expsetup extends PreferenceActivity {
 
 		// Odex now
 		findPreference("reodex").setOnPreferenceClickListener(
-				new OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						new SuProcess(Expsetup.this)
-								.execute("yes | odex_ep_data_apps");
-						return true;
-					}
-				});
+				new ExpPreferenceListener("yes | odex_ep_data_apps"));
 
 		// Set pid priorities
 		findPreference("pid_prioritize").setOnPreferenceChangeListener(
@@ -279,12 +259,12 @@ public class Expsetup extends PreferenceActivity {
 
 	private Builder rebootDialog(int message, final int reboot_cmd,
 			boolean close_if_no_reboot) {
-		return new AlertDialog.Builder(Expsetup.this).setMessage(
+		return new AlertDialog.Builder(Expsetup.this).setMessage(		
 				getString(message)).setPositiveButton(R.string.yes,
 				new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						sendCommandByResource(reboot_cmd, "none");
+						sendCommandById(reboot_cmd, "none");
 					}
 				}).setNegativeButton(R.string.no,
 				close_if_no_reboot ? new OnClickListener() {
@@ -295,11 +275,12 @@ public class Expsetup extends PreferenceActivity {
 				} : null);
 	}
 
-	protected void sendCommandByResource(int cmd_res, String state) {
+	protected void sendCommandById(int cmd_res, String state) {
 		// TODO Auto-generated method stub
 		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
 		runCmd.setData(Uri.fromParts("commandid", Integer.toString(cmd_res), ""))
 				.putExtra("com.olearyp.gusto.STATE", state);
+		Log.v("GUSTO", "Sending reboot Command");
 		Expsetup.this.startService(runCmd);
 	}
 
@@ -443,7 +424,7 @@ public class Expsetup extends PreferenceActivity {
 //				system_needs_reboot = true;
 //			}
 			if(commandid > 0) {
-				sendCommandByResource(commandid, requires_reboot?"reboot-required":"none");
+				sendCommandById(commandid, requires_reboot?"reboot-required":"none");
 			} else {
 				sendCommand(command, requires_reboot?"reboot-required":"none");
 			}
