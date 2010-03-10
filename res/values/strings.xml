@@ -19,7 +19,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
     <string name="reboot_required_msg">Reboot is required</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
-    <string name="reboot_reflash_msg">Phone must be rebooted and your theme or theme template reflashed for settings to take effect.  Reboot to recovery now?</string>
+    <string name="reboot_reflash_msg">You must reflash your theme or the expansion pack for settings to take effect.  Reboot to recovery now?</string>
     <string name="theme_profile_folder">/data/.epdata/theme_profile/</string>
     <string name="rosystem">rosystem</string>
     <string name="rwsystem">rwsystem</string>
@@ -37,11 +37,12 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <item>528000</item>
 
 </string-array>
-<string name="reboot_recovery_required_msg">Reboot to recovery is required</string>
+<string name="reboot_recovery_required_msg">Theme or expansion reflash is required</string>
 <string-array name="server_states"><item>none</item>
 <item>@string/reboot_required</item>
 <item>@string/reboot_recovery_required</item>
 </string-array>
 <string name="reboot_recovery_doit_msg">Flash required, select to reboot to recovery</string>
 <string name="reboot_doit_msg">Select to reboot</string>
+<string name="reboot_request_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
 </resources>

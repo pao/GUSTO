@@ -19,6 +19,7 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -32,6 +33,7 @@ import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
+import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
@@ -240,6 +242,25 @@ public class Expsetup extends PreferenceActivity {
 				new ExpThemeProfileChangeListener("Mms.apk"));
 		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
 				config, "Mms.apk"));
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			String reboot_type = getSharedPreferences("serverState",
+					Context.MODE_PRIVATE).getString("serverState", "none");
+			if (reboot_type.equals(getString(R.string.reboot_recovery_required))) {
+				rebootDialog(R.string.reboot_reflash_msg,
+						R.string.reboot_recovery, true).show();
+				return true;
+			} else if (reboot_type.equals(getString(R.string.reboot_required))) {
+				rebootDialog(R.string.reboot_request_msg, R.string.reboot,
+						true).show();
+				return true;
+			}
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	private Builder rebootDialog(int message, final int reboot_cmd,
