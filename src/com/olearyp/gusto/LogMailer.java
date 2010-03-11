@@ -27,6 +27,7 @@ public class LogMailer extends BroadcastReceiver {
 		final NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification(R.drawable.icon, "ep_log ready to send!", System.currentTimeMillis());
 		note.setLatestEventInfo(context, "ep_log is ready!", "Select to send log to enomther", mailLog);
+		note.flags |= Notification.FLAG_AUTO_CANCEL;
 		nm.notify(READY_NOTIFICATION, note);
 	}
 

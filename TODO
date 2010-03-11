@@ -1,2 +1,3 @@
 * As advanced option, edit packages.xml to remove annoying package signing conflicts (UPDATE_INCOMPATIBLE).
 * As advanced option, high-fidelity dialog showing stdout during SuServer processing.
+* Option to clear out ep_log files.
