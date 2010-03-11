@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,13 +15,19 @@ import android.os.Environment;
 
 public class LogMailer extends BroadcastReceiver {
 
+	private static final int READY_NOTIFICATION = 0x0004EADE;
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		String logfiles[] = getEpLogs();
+		final String logfiles[] = getEpLogs();
 		Arrays.sort(logfiles);
-		context.startActivity(Intent.createChooser(
+		final PendingIntent mailLog = PendingIntent.getActivity(context, 0, Intent.createChooser(
 				sendFile(logfiles[logfiles.length - 1]), "Send ep_log via...")
-				.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+				.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+		final NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification note = new Notification(R.drawable.icon, "ep_log ready to send!", System.currentTimeMillis());
+		note.setLatestEventInfo(context, "ep_log is ready!", "Select to send log to enomther", mailLog);
+		nm.notify(READY_NOTIFICATION, note);
 	}
 
 	private String[] getEpLogs() {

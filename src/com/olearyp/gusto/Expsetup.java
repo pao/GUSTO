@@ -330,7 +330,7 @@ public class Expsetup extends PreferenceActivity {
 	}
 
 	/*
-	 * Listener for 'generate ep_log' button'
+	 * Listener for 'generate ep_log' button
 	 */
 	private final class EpLogListener implements OnPreferenceClickListener {
 		/*
