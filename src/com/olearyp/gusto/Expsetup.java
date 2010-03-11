@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,17 +48,21 @@ public class Expsetup extends PreferenceActivity {
 
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_msg,
-						R.string.reboot));
-		findPreference("reboot_recovery").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_recovery_msg,
-						R.string.reboot_recovery));
+				new RebootPreferenceListener(R.string.reboot_alert_title,
+						R.string.reboot_msg, R.string.reboot));
+		findPreference("reboot_recovery")
+				.setOnPreferenceClickListener(
+						new RebootPreferenceListener(
+								R.string.reboot_alert_title,
+								R.string.reboot_recovery_msg,
+								R.string.reboot_recovery));
 		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_alert_title, R.string.reboot_bootloader_msg,
+				new RebootPreferenceListener(R.string.reboot_alert_title,
+						R.string.reboot_bootloader_msg,
 						R.string.reboot_bootload));
 		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.shutdown_alert_title, R.string.shutdown_msg,
-						R.string.shutdown));
+				new RebootPreferenceListener(R.string.shutdown_alert_title,
+						R.string.shutdown_msg, R.string.shutdown));
 		findPreference("rwsystem").setOnPreferenceClickListener(
 				new ExpPreferenceListener(R.string.rwsystem));
 		findPreference("rosystem").setOnPreferenceClickListener(
@@ -65,35 +70,7 @@ public class Expsetup extends PreferenceActivity {
 
 		// Generate and send ep_log
 		findPreference("ep_log").setOnPreferenceClickListener(
-				new OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						new AlertDialog.Builder(Expsetup.this).setTitle(
-								R.string.ep_log_alert_title).setMessage(
-								R.string.ep_log_confirm_msg).setPositiveButton(
-								R.string.create_log, new OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										Intent runCmd = new Intent(
-												"com.olearyp.gusto.SUEXEC");
-										runCmd
-												.setData(
-														Uri
-																.fromParts(
-																		"command",
-																		"gen_ep_logfile",
-																		""))
-												.putExtra(
-														"com.olearyp.gusto.POST_EX_INTENT",
-														"com.olearyp.gusto.MAIL_LOG");
-										startService(runCmd);
-									}
-								}).setNegativeButton(R.string.return_to_menu,
-								null).show();
-						return true;
-					}
-				});
+				new EpLogListener());
 
 		// CPU options
 		findPreference("freq_sample").setOnPreferenceChangeListener(
@@ -253,11 +230,13 @@ public class Expsetup extends PreferenceActivity {
 					Context.MODE_PRIVATE).getString("serverState", "none");
 			if (reboot_type
 					.equals(getString(R.string.reboot_recovery_required))) {
-				rebootDialog(R.string.reboot_alert_title, R.string.reboot_reflash_msg,
-						R.string.reboot_recovery, true).show();
+				rebootDialog(R.string.reboot_alert_title,
+						R.string.reboot_reflash_msg, R.string.reboot_recovery,
+						true).show();
 				return true;
 			} else if (reboot_type.equals(getString(R.string.reboot_required))) {
-				rebootDialog(R.string.reboot_alert_title, R.string.reboot_request_msg, R.string.reboot, true)
+				rebootDialog(R.string.reboot_alert_title,
+						R.string.reboot_request_msg, R.string.reboot, true)
 						.show();
 				return true;
 			}
@@ -348,6 +327,38 @@ public class Expsetup extends PreferenceActivity {
 		runCmd.setData(Uri.fromParts("command", command, "")).putExtra(
 				"com.olearyp.gusto.STATE", state);
 		startService(runCmd);
+	}
+
+	/*
+	 * Listener for 'generate ep_log' button'
+	 */
+	private final class EpLogListener implements OnPreferenceClickListener {
+		/*
+		 * Listener for Positive button of ep_log dialog
+		 */
+		private final class EpLogDialogListener implements OnClickListener {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+				runCmd.setData(Uri.fromParts("command", "gen_ep_logfile", ""));
+				final PendingIntent post_ex_intent = PendingIntent
+						.getBroadcast(Expsetup.this, 0, new Intent(
+								"com.olearyp.gusto.MAIL_LOG"), 0);
+				runCmd.putExtra("com.olearyp.gusto.POST_EX_INTENT",
+						post_ex_intent);
+				startService(runCmd);
+			}
+		}
+
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			new AlertDialog.Builder(Expsetup.this).setTitle(
+					R.string.ep_log_alert_title).setMessage(
+					R.string.ep_log_confirm_msg).setPositiveButton(
+					R.string.create_log, new EpLogDialogListener())
+					.setNegativeButton(R.string.return_to_menu, null).show();
+			return true;
+		}
 	}
 
 	/* Generic listener which executes a command as root */

@@ -17,6 +17,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -116,10 +117,8 @@ public class SuServer extends IntentService {
 			cmdString = getString(Integer.parseInt(cmdString));
 		}
 		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
-		final String postExecuteIntent = intent
-				.getStringExtra("com.olearyp.gusto.POST_EX_INTENT");
-		final String postExecuteUri = intent
-				.getStringExtra("com.olearyp.gusto.POST_EX_URI");
+		final PendingIntent postExecuteIntent = (PendingIntent) intent
+				.getParcelableExtra("com.olearyp.gusto.POST_EX_INTENT");
 
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
 
@@ -175,12 +174,12 @@ public class SuServer extends IntentService {
 		}
 
 		if (postExecuteIntent != null) {
-			Intent intentX = new Intent(postExecuteIntent);
-			intentX.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			if (postExecuteUri != null) {
-				intentX.setData(Uri.parse(postExecuteUri));
+			try {
+				postExecuteIntent.send();
+			} catch (CanceledException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			sendBroadcast(intentX);
 		}
 
 		if (state != null) {
