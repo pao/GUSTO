@@ -54,13 +54,6 @@ public class SuServer extends IntentService {
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 
-		Notification note = new Notification(R.drawable.icon,
-				"Processing setting...", System.currentTimeMillis());
-		note.setLatestEventInfo(this, "GUSTO",
-				"GUSTO is processing settings...", PendingIntent.getBroadcast(
-						this, 0, null, 0));
-		nm.notify(STATUS_NOTIFICATION, note);
-
 		super.onCreate();
 	}
 
@@ -119,8 +112,21 @@ public class SuServer extends IntentService {
 		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
 		final PendingIntent postExecuteIntent = (PendingIntent) intent
 				.getParcelableExtra("com.olearyp.gusto.POST_EX_INTENT");
+		Notification note = (Notification) intent
+				.getParcelableExtra("com.olearyp.gusto.RUN_NOTIFICATION");
 
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
+
+		if (note == null) {
+			note = new Notification(R.drawable.icon, "Processing setting...",
+					System.currentTimeMillis());
+			note
+					.setLatestEventInfo(this, getString(R.string.app_name),
+							getString(R.string.app_name)
+									+ " is processing settings...",
+							PendingIntent.getBroadcast(this, 0, null, 0));
+		}
+		nm.notify(STATUS_NOTIFICATION, note);
 
 		final Process p;
 		try {
