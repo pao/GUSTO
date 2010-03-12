@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -346,6 +347,14 @@ public class Expsetup extends PreferenceActivity {
 								"com.olearyp.gusto.MAIL_LOG"), 0);
 				runCmd.putExtra("com.olearyp.gusto.POST_EX_INTENT",
 						post_ex_intent);
+				final Notification note = new Notification(R.drawable.icon,
+						"Generating log...", System.currentTimeMillis());
+				note.setLatestEventInfo(Expsetup.this,
+						getString(R.string.app_name),
+						getString(R.string.app_name)
+								+ " is generating an ep_log...", PendingIntent
+								.getBroadcast(Expsetup.this, 0, null, 0));
+				runCmd.putExtra("com.olearyp.gusto.RUN_NOTIFICATION", note);
 				startService(runCmd);
 			}
 		}
