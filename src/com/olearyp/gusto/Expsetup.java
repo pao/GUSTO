@@ -471,12 +471,13 @@ public class Expsetup extends PreferenceActivity {
 	public class ExpThemeProfileChangeListener implements
 			OnPreferenceChangeListener {
 
-		private String filename;
-		private String description;
+		private String filename = "";
+		private String description = "";
 
 		public ExpThemeProfileChangeListener(String filename, String description) {
 			super();
 			this.filename = filename;
+			this.description = description;
 		}
 
 		@Override

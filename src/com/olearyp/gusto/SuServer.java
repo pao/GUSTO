@@ -21,6 +21,7 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 
@@ -83,6 +84,10 @@ public class SuServer extends IntentService {
 							contentIntent);
 			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
 					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			note.flags |= Notification.FLAG_SHOW_LIGHTS;
+			note.ledOnMS = 200;
+			note.ledOffMS = 400;
+			note.ledARGB = Color.argb(255, 255, 0, 0);
 			nm.notify(REBOOT_NOTIFICATION, note);
 		} else if (getServerState().equals(getString(R.string.reboot_required))) {
 			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
@@ -98,6 +103,10 @@ public class SuServer extends IntentService {
 					getString(R.string.reboot_doit_msg), contentIntent);
 			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
 					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			note.flags |= Notification.FLAG_SHOW_LIGHTS;
+			note.ledOnMS = 200;
+			note.ledOffMS = 600;
+			note.ledARGB = Color.argb(255, 255, 255, 0);
 			nm.notify(REBOOT_NOTIFICATION, note);
 		}
 		super.onDestroy();
