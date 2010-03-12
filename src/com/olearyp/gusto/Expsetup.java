@@ -65,9 +65,11 @@ public class Expsetup extends PreferenceActivity {
 				new RebootPreferenceListener(R.string.shutdown_alert_title,
 						R.string.shutdown_msg, R.string.shutdown));
 		findPreference("rwsystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener(R.string.rwsystem));
+				new ExpPreferenceListener(R.string.rwsystem,
+						"setting /system read-write"));
 		findPreference("rosystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener(R.string.rosystem));
+				new ExpPreferenceListener(R.string.rosystem,
+						"setting /system read-only"));
 
 		// Generate and send ep_log
 		findPreference("ep_log").setOnPreferenceClickListener(
@@ -75,7 +77,8 @@ public class Expsetup extends PreferenceActivity {
 
 		// CPU options
 		findPreference("freq_sample").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | set_ep_cyan_ond_mod"));
+				new ExpPreferenceListener("yes | set_ep_cyan_ond_mod",
+						"setting frequency scaling"));
 		((CheckBoxPreference) findPreference("freq_sample"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
 
@@ -94,7 +97,7 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
-								"none");
+								"setting minimum CPU frequency", "none");
 						String[] legalfreqs = freqs.subList(
 								freqs.indexOf(newValue), freqs.size()).toArray(
 								new String[0]);
@@ -114,7 +117,7 @@ public class Expsetup extends PreferenceActivity {
 										+ " && "
 										+ "write_out_ep_config && "
 										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
-								"none");
+								"setting maximum CPU frequency", "none");
 						String[] legalfreqs = freqs.subList(0,
 								freqs.indexOf(newValue) + 1).toArray(
 								new String[0]);
@@ -147,7 +150,8 @@ public class Expsetup extends PreferenceActivity {
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
 						sendCommand("yes '" + newValue.toString()
-								+ "' | set_ep_swappiness", "none");
+								+ "' | set_ep_swappiness",
+								"setting swappiness", "none");
 						return true;
 					}
 				});
@@ -158,35 +162,41 @@ public class Expsetup extends PreferenceActivity {
 
 		// Compcache
 		findPreference("compcache").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_compcache", true));
+				new ExpPreferenceListener("yes | toggle_ep_compcache",
+						"setting compcache", true));
 		((CheckBoxPreference) findPreference("compcache"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
 
 		// Linux swap
 		findPreference("linux_swap").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_linuxswap"));
+				new ExpPreferenceListener("yes | toggle_ep_linuxswap",
+						"setting Linux-swap"));
 		((CheckBoxPreference) findPreference("linux_swap"))
 				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
 
 		// userinit.sh
 		findPreference("userinit").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_userinit"));
+				new ExpPreferenceListener("yes | toggle_ep_userinit",
+						"setting userinit"));
 		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
 				config, "GLB_EP_RUN_USERINIT"));
 
 		// Remove odex on boot
 		findPreference("odex").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_odex_boot_removal"));
+				new ExpPreferenceListener("yes | toggle_ep_odex_boot_removal",
+						"setting ODEX removal"));
 		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
 				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
 
 		// Odex now
 		findPreference("reodex").setOnPreferenceClickListener(
-				new ExpPreferenceListener("yes | odex_ep_data_apps"));
+				new ExpPreferenceListener("yes | odex_ep_data_apps",
+						"re-ODEXing apps"));
 
 		// Set pid priorities
 		findPreference("pid_prioritize").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_pid_prioritizer"));
+				new ExpPreferenceListener("yes | toggle_ep_pid_prioritizer",
+						"setting PID prioritizer"));
 		((CheckBoxPreference) findPreference("pid_prioritize"))
 				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
 
@@ -198,27 +208,32 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 		findPreference("launcher").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Launcher.apk"));
+				new ExpThemeProfileChangeListener("Launcher.apk",
+						"changing Launcher"));
 		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
 				config, "Launcher.apk"));
 
-		findPreference("phone").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Phone.apk"));
+		findPreference("phone")
+				.setOnPreferenceChangeListener(
+						new ExpThemeProfileChangeListener("Phone.apk",
+								"changing Phone"));
 		((CheckBoxPreference) findPreference("phone")).setChecked(isTrueish(
 				config, "Phone.apk"));
 
 		findPreference("contacts").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Contacts.apk"));
+				new ExpThemeProfileChangeListener("Contacts.apk",
+						"changing Contacts"));
 		((CheckBoxPreference) findPreference("contacts")).setChecked(isTrueish(
 				config, "Contacts.apk"));
 
 		findPreference("browser").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Browser.apk"));
+				new ExpThemeProfileChangeListener("Browser.apk",
+						"changing the Browser"));
 		((CheckBoxPreference) findPreference("browser")).setChecked(isTrueish(
 				config, "Browser.apk"));
 
 		findPreference("mms").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Mms.apk"));
+				new ExpThemeProfileChangeListener("Mms.apk", "changing MMS"));
 		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
 				config, "Mms.apk"));
 	}
@@ -323,10 +338,17 @@ public class Expsetup extends PreferenceActivity {
 		return config;
 	}
 
-	private void sendCommand(String command, String state) {
+	private void sendCommand(String command, String description, String state) {
 		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
 		runCmd.setData(Uri.fromParts("command", command, "")).putExtra(
 				"com.olearyp.gusto.STATE", state);
+		final Notification note = new Notification(R.drawable.icon, description
+				.substring(0, 1).toUpperCase()
+				+ description.substring(1) + "...", System.currentTimeMillis());
+		note.setLatestEventInfo(Expsetup.this, getString(R.string.app_name),
+				getString(R.string.app_name) + " is " + description + "...",
+				PendingIntent.getBroadcast(Expsetup.this, 0, null, 0));
+		runCmd.putExtra("com.olearyp.gusto.RUN_NOTIFICATION", note);
 		startService(runCmd);
 	}
 
@@ -375,21 +397,25 @@ public class Expsetup extends PreferenceActivity {
 			OnPreferenceChangeListener, OnPreferenceClickListener {
 
 		private String command = "";
+		private String description = "";
 		private boolean requires_reboot = false;
 		private int commandid = 0;
 
-		public ExpPreferenceListener(int commandid) {
+		public ExpPreferenceListener(int commandid, String description) {
 			super();
 			this.commandid = commandid;
+			this.description = description;
 		}
 
-		public ExpPreferenceListener(String command) {
-			this(command, false);
+		public ExpPreferenceListener(String command, String description) {
+			this(command, description, false);
 		}
 
-		public ExpPreferenceListener(String command, boolean requires_reboot) {
+		public ExpPreferenceListener(String command, String description,
+				boolean requires_reboot) {
 			super();
 			this.command = command;
+			this.description = description;
 			this.requires_reboot = requires_reboot;
 		}
 
@@ -412,8 +438,8 @@ public class Expsetup extends PreferenceActivity {
 				sendCommandById(commandid, requires_reboot ? "reboot-required"
 						: "none");
 			} else {
-				sendCommand(command, requires_reboot ? "reboot-required"
-						: "none");
+				sendCommand(command, description,
+						requires_reboot ? "reboot-required" : "none");
 			}
 			return true;
 		}
@@ -446,8 +472,9 @@ public class Expsetup extends PreferenceActivity {
 			OnPreferenceChangeListener {
 
 		private String filename;
+		private String description;
 
-		public ExpThemeProfileChangeListener(String filename) {
+		public ExpThemeProfileChangeListener(String filename, String description) {
 			super();
 			this.filename = filename;
 		}
@@ -456,10 +483,10 @@ public class Expsetup extends PreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			if ((Boolean) newValue) {
 				sendCommand("echo YES > /data/.epdata/theme_profile/"
-						+ filename, "reboot-recovery-required");
+						+ filename, description, "reboot-recovery-required");
 			} else {
 				sendCommand("busybox rm -rf /data/.epdata/theme_profile/"
-						+ filename, "reboot-recovery-required");
+						+ filename, description, "reboot-recovery-required");
 			}
 			return true;
 		}
