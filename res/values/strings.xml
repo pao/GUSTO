@@ -7,6 +7,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
+    
     <string name="shutdown_alert_title">Shutdown?</string>
     <string name="reboot_alert_title">Reboot?</string>
     <string name="ep_log_alert_title">Important message!</string>

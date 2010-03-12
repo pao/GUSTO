@@ -8,7 +8,7 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 -->
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android" android:title="GUSTO: GUI Used to Setup TheOfficial">
-
+<com.olearyp.gusto.DownloadPreference android:key="dnld_test" android:title="DOWNLOADPREF TEST" />
 <PreferenceScreen android:key="qcommands" android:title="QuickCommands"><Preference android:title="Reboot" android:key="reboot"></Preference>
 <Preference android:key="reboot_recovery" android:title="Reboot to recovery"></Preference>
 <Preference android:key="reboot_bootloader" android:title="Reboot to bootloader"></Preference>
