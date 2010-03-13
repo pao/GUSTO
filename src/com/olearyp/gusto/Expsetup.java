@@ -34,7 +34,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.util.Log;
 import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
@@ -280,15 +279,6 @@ public class Expsetup extends PreferenceActivity {
 						} : null);
 	}
 
-	protected void sendCommandById(int cmd_res, String state) {
-		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
-		runCmd.setData(
-				Uri.fromParts("commandid", Integer.toString(cmd_res), ""))
-				.putExtra("com.olearyp.gusto.STATE", state);
-		Log.v("GUSTO", "Sending reboot Command");
-		Expsetup.this.startService(runCmd);
-	}
-
 	private boolean isTrueish(Map<String, String> config, String key) {
 		return (config.get(key) != null && config.get(key).equals("YES"));
 	}
@@ -340,7 +330,10 @@ public class Expsetup extends PreferenceActivity {
 
 	private void sendCommand(String command, String description, String state) {
 		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
-		runCmd.setData(Uri.fromParts("command", command, "")).putExtra(
+		runCmd.setData(
+				Uri.fromParts("command",
+						". /system/bin/exp_script.sh.lib && read_in_ep_config && "
+								+ command, "")).putExtra(
 				"com.olearyp.gusto.STATE", state);
 		final Notification note = new Notification(R.drawable.icon, description
 				.substring(0, 1).toUpperCase()
@@ -350,6 +343,16 @@ public class Expsetup extends PreferenceActivity {
 				PendingIntent.getBroadcast(Expsetup.this, 0, null, 0));
 		runCmd.putExtra("com.olearyp.gusto.RUN_NOTIFICATION", note);
 		startService(runCmd);
+	}
+
+	protected void sendCommandById(int cmd_res, String state) {
+		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
+		runCmd.setData(
+				Uri.fromParts("command",
+						". /system/bin/exp_script.sh.lib && read_in_ep_config && "
+								+ getString(cmd_res), "")).putExtra(
+				"com.olearyp.gusto.STATE", state);
+		Expsetup.this.startService(runCmd);
 	}
 
 	/*

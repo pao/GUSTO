@@ -27,6 +27,22 @@ import android.util.Log;
 
 public class SuServer extends IntentService {
 
+	public class UnsupportedCommandSchemeException extends Exception {
+		private static final long serialVersionUID = 7351188199664441783L;
+
+		private String scheme = "?";
+		
+		public UnsupportedCommandSchemeException(String scheme) {
+			this.scheme = scheme;
+		}
+
+		@Override
+		public String getMessage() {
+			return "Command scheme '" + scheme + "' is not supported by " + SuServer.class.getName() + ".";
+		}
+
+	}
+
 	private static final int REBOOT_NOTIFICATION = 0x0043B007;
 
 	private static final int STATUS_NOTIFICATION = 0x0057A705;
@@ -115,8 +131,16 @@ public class SuServer extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
-		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
+		final String scheme = Uri.parse(intent.toUri(0)).getScheme();
+		if (scheme.equals("commandid")) {
 			cmdString = getString(Integer.parseInt(cmdString));
+		} else if (!scheme.equals("command")) {
+			try {
+				throw new UnsupportedCommandSchemeException(scheme);
+			} catch (UnsupportedCommandSchemeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
 		final PendingIntent postExecuteIntent = (PendingIntent) intent
@@ -142,8 +166,7 @@ public class SuServer extends IntentService {
 					new OutputStreamWriter(p.getOutputStream()));
 
 			stdOutput
-					.write(". /system/bin/exp_script.sh.lib && read_in_ep_config && "
-							+ cmdString + "; exit\n");
+					.write(cmdString + "; exit\n");
 			stdOutput.flush();
 			/*
 			 * We need to asynchronously find out when this process is done so
