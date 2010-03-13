@@ -126,16 +126,9 @@ public class SuServer extends IntentService {
 
 		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
 
-		if (note == null) {
-			note = new Notification(R.drawable.icon, "Processing setting...",
-					System.currentTimeMillis());
-			note
-					.setLatestEventInfo(this, getString(R.string.app_name),
-							getString(R.string.app_name)
-									+ " is processing settings...",
-							PendingIntent.getBroadcast(this, 0, null, 0));
+		if (note != null) {
+			nm.notify(STATUS_NOTIFICATION, note);
 		}
-		nm.notify(STATUS_NOTIFICATION, note);
 
 		final Process p;
 		try {
