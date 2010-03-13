@@ -1,3 +1,10 @@
+/* Copyright 2010 Patrick O'Leary.  All rights reserved.
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only.
+ * See the file CDDL.txt in this distribution or
+ * http://opensource.org/licenses/cddl1.php for details.
+ */
+
 package com.olearyp.gusto;
 
 import java.io.IOException;
@@ -10,7 +17,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
