@@ -1,31 +1,37 @@
 package com.olearyp.gusto;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.preference.Preference;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 public class DownloadPreference extends Preference {
 
-	private URL uri;
+	private URL url;
 	private String destination = "";
-	private ProgressBar pb;
+	private View v;
+
 	public URL getUri() {
-		return uri;
+		return url;
 	}
 
 	public void setUri(URL uri) {
-		this.uri = uri;
+		this.url = uri;
 	}
 
 	public DownloadPreference(Context context, AttributeSet attrs, int defStyle) {
@@ -56,41 +62,47 @@ public class DownloadPreference extends Preference {
 		this.destination = destination;
 	}
 
-	
 	@Override
 	protected View onCreateView(ViewGroup parent) {
-		final View v = super.onCreateView(parent);
-		pb = (ProgressBar) v.findViewById(R.id.progress);
+		v = super.onCreateView(parent);
 		return v;
 	}
-
 
 	private class Downloader implements OnPreferenceClickListener {
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
+			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
 			pb.setProgress(pb.getProgress() + 10);
-//			try {
-//				HttpURLConnection c;
-//				c = (HttpURLConnection) uri.openConnection();
-//				c.setRequestMethod("GET");
-//				c.setDoOutput(true);
-//				c.connect();
-//				FileOutputStream f = new FileOutputStream(new File(destination));
-//
-//				InputStream in = c.getInputStream();
-//
-//				byte[] buffer = new byte[1024];
-//				int len1 = 0;
-//				while ((len1 = in.read(buffer)) > 0) {
-//					f.write(buffer, 0, len1);
-//				}
-//				in.close();
-//				f.close();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			// Create an instance of HttpClient.
+			HttpClient client = new DefaultHttpClient();
+
+			try {
+				HttpGet method = new HttpGet(url.toURI());
+				ResponseHandler<ByteBuffer> responseHandler = new ResponseHandler<ByteBuffer>() {
+
+					@Override
+					public ByteBuffer handleResponse(HttpResponse response)
+							throws ClientProtocolException, IOException {
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+				};
+				ByteBuffer responseBody = client.execute(method,
+						responseHandler);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			client.getConnectionManager().shutdown();
 
 			return true;
 		}
