@@ -7,6 +7,7 @@
 
 package com.olearyp.gusto;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,7 +121,9 @@ public class DownloadPreference extends Preference {
 						if(entity != null) {
 							InputStream filecont = entity.getContent();
 							ReadableByteChannel dl_chan = Channels.newChannel(filecont);
-							FileOutputStream fout = new FileOutputStream(destination);
+							File dst = new File(destination);
+							dst.createNewFile();
+							FileOutputStream fout = new FileOutputStream(dst);
 							FileChannel fout_chan = fout.getChannel();
 							
 							int bytesRead = 0;
