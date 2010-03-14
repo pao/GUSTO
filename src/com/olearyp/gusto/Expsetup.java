@@ -12,8 +12,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +59,8 @@ public class Expsetup extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
 
-		((DownloadPreference) findPreference("dl_test")).setUri("http://github.com/downloads/pao/GUSTO/GUSTO-v0.5_signed.apk");
-		((DownloadPreference) findPreference("dl_test")).setDestination("/sdcard/testfile.apk");
+		((DownloadPreference) findPreference("dl_test")).setUri("http://jkft.info/xbmc/testfiles/channelid/audio/8_Channel_ID_FLAC71.flac");
+		((DownloadPreference) findPreference("dl_test")).setDestination("/sdcard/testfile.flac");
 		
 		// QuickCommands menu
 		findPreference("reboot").setOnPreferenceClickListener(
