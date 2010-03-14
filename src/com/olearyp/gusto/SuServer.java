@@ -20,8 +20,6 @@ import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 
@@ -43,13 +41,11 @@ public class SuServer extends IntentService {
 
 	}
 
-	private static final int REBOOT_NOTIFICATION = 0x0043B007;
 
 	private static final int STATUS_NOTIFICATION = 0x0057A705;
 
 	private NotificationManager nm = null;
 
-	private SharedPreferences settings = null;
 
 	public SuServer() {
 		super("SuServer");
@@ -58,7 +54,6 @@ public class SuServer extends IntentService {
 	@Override
 	public void onCreate() {
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 	
 		super.onCreate();
 	}
@@ -68,48 +63,6 @@ public class SuServer extends IntentService {
 		// We're done, kill the "running" notification
 		nm.cancel(STATUS_NOTIFICATION);
 		// Create or modify reboot notification, if needed
-		if (getServerState().equals(
-				getString(R.string.reboot_recovery_required))) {
-			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
-					.fromParts("commandid", Integer
-							.toString(R.string.reboot_recovery), ""));
-			PendingIntent contentIntent = PendingIntent.getService(this, 0,
-					intent, 0);
-	
-			Notification note = new Notification(R.drawable.status_reboot,
-					getString(R.string.reboot_recovery_required_msg), System
-							.currentTimeMillis());
-			note
-					.setLatestEventInfo(this, "GUSTO reboot request",
-							getString(R.string.reboot_recovery_doit_msg),
-							contentIntent);
-			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
-			note.flags |= Notification.FLAG_SHOW_LIGHTS;
-			note.ledOnMS = 200;
-			note.ledOffMS = 400;
-			note.ledARGB = Color.argb(255, 255, 0, 0);
-			nm.notify(REBOOT_NOTIFICATION, note);
-		} else if (getServerState().equals(getString(R.string.reboot_required))) {
-			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
-					.fromParts("commandid", Integer.toString(R.string.reboot),
-							""));
-			PendingIntent contentIntent = PendingIntent.getService(this, 0,
-					intent, 0);
-	
-			Notification note = new Notification(R.drawable.status_reboot,
-					getString(R.string.reboot_required_msg), System
-							.currentTimeMillis());
-			note.setLatestEventInfo(this, "GUSTO reboot request",
-					getString(R.string.reboot_doit_msg), contentIntent);
-			note.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
-			note.flags |= Notification.FLAG_SHOW_LIGHTS;
-			note.ledOnMS = 200;
-			note.ledOffMS = 600;
-			note.ledARGB = Color.argb(255, 255, 255, 0);
-			nm.notify(REBOOT_NOTIFICATION, note);
-		}
 		super.onDestroy();
 	}
 
@@ -119,30 +72,9 @@ public class SuServer extends IntentService {
 		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
 			cmdString = getString(Integer.parseInt(cmdString));
 		}
-		Log.v("GUSTO", "SuServer has received request for command '"
+		Log.v(getString(R.string.app_name), "SuServer has received request for command '"
 				+ cmdString + "'.");
 		super.onStart(intent, startId);
-	}
-
-	private String getServerState() {
-		return settings.getString("serverState", "none");
-	}
-
-	private void setServerState(String state) {
-		if (getIndex(state) > getIndex(getServerState())) {
-			settings.edit().putString("serverState", state).commit();
-		}
-	}
-
-	private final int getIndex(String specificValue) {
-		String[] stateIndex = getResources().getStringArray(
-				R.array.server_states);
-		for (int i = 0; i < stateIndex.length; i++) {
-			if (stateIndex[i].equals(specificValue)) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	@Override
@@ -159,13 +91,12 @@ public class SuServer extends IntentService {
 				e.printStackTrace();
 			}
 		}
-		final String state = intent.getStringExtra("com.olearyp.gusto.STATE");
 		final PendingIntent postExecuteIntent = (PendingIntent) intent
 				.getParcelableExtra("com.olearyp.gusto.POST_EX_INTENT");
 		Notification note = (Notification) intent
 				.getParcelableExtra("com.olearyp.gusto.RUN_NOTIFICATION");
 
-		Log.v("GUSTO", "SuServer is handling command '" + cmdString + "'.");
+		Log.v(getString(R.string.app_name), "SuServer is handling command '" + cmdString + "'.");
 
 		if (note != null) {
 			nm.notify(STATUS_NOTIFICATION, note);
@@ -230,9 +161,6 @@ public class SuServer extends IntentService {
 			}
 		}
 
-		if (state != null) {
-			setServerState(state);
-		}
 	}
 
 }

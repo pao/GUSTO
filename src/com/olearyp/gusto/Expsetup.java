@@ -19,12 +19,15 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -39,10 +42,20 @@ import android.view.KeyEvent;
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
 
+	private static final int REBOOT_NOTIFICATION = 0x0043B007;
+
+	private SharedPreferences settings = null;
+
+	private NotificationManager nm = null;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		settings = getSharedPreferences("serverState", MODE_PRIVATE);
+
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
 
@@ -267,7 +280,7 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								sendCommandById(reboot_cmd, "none");
+								sendCommand(getString(reboot_cmd), "rebooting", "none");
 							}
 						}).setNegativeButton(R.string.no,
 						close_if_no_reboot ? new OnClickListener() {
@@ -343,18 +356,53 @@ public class Expsetup extends PreferenceActivity {
 				PendingIntent.getBroadcast(Expsetup.this, 0, null, 0));
 		runCmd.putExtra("com.olearyp.gusto.RUN_NOTIFICATION", note);
 		startService(runCmd);
-	}
+		setServerState(state);
+		if (getServerState().equals(
+				getString(R.string.reboot_recovery_required))) {
+			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
+					.fromParts("commandid", Integer
+							.toString(R.string.reboot_recovery), ""));
+			PendingIntent contentIntent = PendingIntent.getService(this, 0,
+					intent, 0);
+	
+			Notification rebootNote = new Notification(R.drawable.status_reboot,
+					getString(R.string.reboot_recovery_required_msg), System
+							.currentTimeMillis());
+			rebootNote
+					.setLatestEventInfo(this, "GUSTO reboot request",
+							getString(R.string.reboot_recovery_doit_msg),
+							contentIntent);
+			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			rebootNote.flags |= Notification.FLAG_SHOW_LIGHTS;
+			rebootNote.ledOnMS = 200;
+			rebootNote.ledOffMS = 400;
+			rebootNote.ledARGB = Color.argb(255, 255, 0, 0);
+			nm.notify(REBOOT_NOTIFICATION, rebootNote);
+		} else if (getServerState().equals(getString(R.string.reboot_required))) {
+			Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri
+					.fromParts("commandid", Integer.toString(R.string.reboot),
+							""));
+			PendingIntent contentIntent = PendingIntent.getService(this, 0,
+					intent, 0);
+	
+			Notification rebootNote = new Notification(R.drawable.status_reboot,
+					getString(R.string.reboot_required_msg), System
+							.currentTimeMillis());
+			rebootNote.setLatestEventInfo(this, "GUSTO reboot request",
+					getString(R.string.reboot_doit_msg), contentIntent);
+			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			rebootNote.flags |= Notification.FLAG_SHOW_LIGHTS;
+			rebootNote.ledOnMS = 200;
+			rebootNote.ledOffMS = 600;
+			rebootNote.ledARGB = Color.argb(255, 255, 255, 0);
+			nm.notify(REBOOT_NOTIFICATION, rebootNote);
+		}
+}
 
-	protected void sendCommandById(int cmd_res, String state) {
-		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
-		runCmd.setData(
-				Uri.fromParts("command",
-						". /system/bin/exp_script.sh.lib && read_in_ep_config && "
-								+ getString(cmd_res), "")).putExtra(
-				"com.olearyp.gusto.STATE", state);
-		Expsetup.this.startService(runCmd);
-	}
 
+	
 	/*
 	 * Listener for 'generate ep_log' button
 	 */
@@ -438,7 +486,7 @@ public class Expsetup extends PreferenceActivity {
 			// system_needs_reboot = true;
 			// }
 			if (commandid > 0) {
-				sendCommandById(commandid, requires_reboot ? "reboot-required"
+				sendCommand(getString(commandid), description, requires_reboot ? "reboot-required"
 						: "none");
 			} else {
 				sendCommand(command, description,
@@ -496,4 +544,26 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 	}
+	
+	private String getServerState() {
+		return settings.getString("serverState", "none");
+	}
+
+	private void setServerState(String state) {
+		if (getIndex(state) > getIndex(getServerState())) {
+			settings.edit().putString("serverState", state).commit();
+		}
+	}
+
+	private final int getIndex(String specificValue) {
+		String[] stateIndex = getResources().getStringArray(
+				R.array.server_states);
+		for (int i = 0; i < stateIndex.length; i++) {
+			if (stateIndex[i].equals(specificValue)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 }
