@@ -56,26 +56,11 @@ public class SuServer extends IntentService {
 	}
 
 	@Override
-	public void onStart(Intent intent, int startId) {
-		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
-		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
-			cmdString = getString(Integer.parseInt(cmdString));
-		}
-		Log.v("GUSTO", "SuServer has received request for command '"
-				+ cmdString + "'.");
-		super.onStart(intent, startId);
-	}
-
-	@Override
 	public void onCreate() {
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
-
+	
 		super.onCreate();
-	}
-
-	private String getServerState() {
-		return settings.getString("serverState", "none");
 	}
 
 	@Override
@@ -90,7 +75,7 @@ public class SuServer extends IntentService {
 							.toString(R.string.reboot_recovery), ""));
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
-
+	
 			Notification note = new Notification(R.drawable.status_reboot,
 					getString(R.string.reboot_recovery_required_msg), System
 							.currentTimeMillis());
@@ -111,7 +96,7 @@ public class SuServer extends IntentService {
 							""));
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
-
+	
 			Notification note = new Notification(R.drawable.status_reboot,
 					getString(R.string.reboot_required_msg), System
 							.currentTimeMillis());
@@ -126,6 +111,38 @@ public class SuServer extends IntentService {
 			nm.notify(REBOOT_NOTIFICATION, note);
 		}
 		super.onDestroy();
+	}
+
+	@Override
+	public void onStart(Intent intent, int startId) {
+		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
+		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
+			cmdString = getString(Integer.parseInt(cmdString));
+		}
+		Log.v("GUSTO", "SuServer has received request for command '"
+				+ cmdString + "'.");
+		super.onStart(intent, startId);
+	}
+
+	private String getServerState() {
+		return settings.getString("serverState", "none");
+	}
+
+	private void setServerState(String state) {
+		if (getIndex(state) > getIndex(getServerState())) {
+			settings.edit().putString("serverState", state).commit();
+		}
+	}
+
+	private final int getIndex(String specificValue) {
+		String[] stateIndex = getResources().getStringArray(
+				R.array.server_states);
+		for (int i = 0; i < stateIndex.length; i++) {
+			if (stateIndex[i].equals(specificValue)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	@Override
@@ -215,23 +232,6 @@ public class SuServer extends IntentService {
 
 		if (state != null) {
 			setServerState(state);
-		}
-	}
-
-	private final int getIndex(String specificValue) {
-		String[] stateIndex = getResources().getStringArray(
-				R.array.server_states);
-		for (int i = 0; i < stateIndex.length; i++) {
-			if (stateIndex[i].equals(specificValue)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private void setServerState(String state) {
-		if (getIndex(state) > getIndex(getServerState())) {
-			settings.edit().putString("serverState", state).commit();
 		}
 	}
 
