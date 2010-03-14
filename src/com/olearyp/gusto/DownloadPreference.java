@@ -12,6 +12,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -20,6 +22,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.View;
@@ -56,7 +59,7 @@ public class DownloadPreference extends Preference {
 	}
 
 	private void init() {
-		this.setOnPreferenceClickListener(new Downloader());
+		this.setOnPreferenceClickListener(new DownloadPreferenceListener());
 		this.setWidgetLayoutResource(R.layout.download_progress);
 	}
 
@@ -74,13 +77,28 @@ public class DownloadPreference extends Preference {
 		return v;
 	}
 
-	private class Downloader implements OnPreferenceClickListener {
+	private class DownloadPreferenceListener implements OnPreferenceClickListener {
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
 			pb.setProgress(pb.getProgress() + 10);
 			// Create an instance of HttpClient.
+
+			return true;
+		}
+	}
+	
+	private class Downloader extends AsyncTask<Object, Integer, Void> {
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected Void doInBackground(Object... params) {
 			HttpClient client = new DefaultHttpClient();
 
 			try {
@@ -90,6 +108,14 @@ public class DownloadPreference extends Preference {
 					@Override
 					public ByteBuffer handleResponse(HttpResponse response)
 							throws ClientProtocolException, IOException {
+						Header clh = response.getFirstHeader("content-length");
+						if(clh == null) {
+							return null;
+						}
+						HttpEntity entity = response.getEntity();
+						if(entity != null) {
+							
+						}
 						// TODO Auto-generated method stub
 						return null;
 					}
@@ -97,6 +123,7 @@ public class DownloadPreference extends Preference {
 				};
 				ByteBuffer responseBody = client.execute(method,
 						responseHandler);
+				
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -109,8 +136,8 @@ public class DownloadPreference extends Preference {
 			}
 
 			client.getConnectionManager().shutdown();
-
-			return true;
+			return null;
 		}
+		
 	}
 }
