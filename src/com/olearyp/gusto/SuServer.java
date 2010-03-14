@@ -51,7 +51,8 @@ public class SuServer extends IntentService {
 		Notification note = (Notification) intent
 				.getParcelableExtra("com.olearyp.gusto.RUN_NOTIFICATION");
 
-		Log.v(getString(R.string.app_name), "SuServer is handling command '" + cmdString + "'.");
+		Log.v(getString(R.string.app_name), "SuServer is handling command '"
+				+ cmdString + "'.");
 
 		if (note != null) {
 			nm.notify(STATUS_NOTIFICATION, note);
@@ -68,8 +69,7 @@ public class SuServer extends IntentService {
 			BufferedWriter stdOutput = new BufferedWriter(
 					new OutputStreamWriter(p.getOutputStream()));
 
-			stdOutput
-					.write(cmdString + "; exit\n");
+			stdOutput.write(cmdString + "; exit\n");
 			stdOutput.flush();
 			/*
 			 * We need to asynchronously find out when this process is done so
@@ -122,18 +122,19 @@ public class SuServer extends IntentService {
 
 	public class UnsupportedCommandSchemeException extends Exception {
 		private static final long serialVersionUID = 7351188199664441783L;
-	
+
 		private String scheme = "?";
-		
+
 		public UnsupportedCommandSchemeException(String scheme) {
 			this.scheme = scheme;
 		}
-	
+
 		@Override
 		public String getMessage() {
-			return "Command scheme '" + scheme + "' is not supported by " + SuServer.class.getName() + ".";
+			return "Command scheme '" + scheme + "' is not supported by "
+					+ SuServer.class.getName() + ".";
 		}
-	
+
 	}
 
 }

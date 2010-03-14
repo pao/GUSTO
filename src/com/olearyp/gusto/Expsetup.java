@@ -52,7 +52,7 @@ public class Expsetup extends PreferenceActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 
@@ -280,7 +280,8 @@ public class Expsetup extends PreferenceActivity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								sendCommand(getString(reboot_cmd), "rebooting", "none");
+								sendCommand(getString(reboot_cmd), "rebooting",
+										"none");
 							}
 						}).setNegativeButton(R.string.no,
 						close_if_no_reboot ? new OnClickListener() {
@@ -364,16 +365,17 @@ public class Expsetup extends PreferenceActivity {
 							.toString(R.string.reboot_recovery), ""));
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
-	
-			Notification rebootNote = new Notification(R.drawable.status_reboot,
+
+			Notification rebootNote = new Notification(
+					R.drawable.status_reboot,
 					getString(R.string.reboot_recovery_required_msg), System
 							.currentTimeMillis());
 			rebootNote
 					.setLatestEventInfo(this, "GUSTO reboot request",
 							getString(R.string.reboot_recovery_doit_msg),
 							contentIntent);
-			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0,
+					new Intent("com.olearyp.gusto.RESET_SERVER_STATE"), 0);
 			rebootNote.flags |= Notification.FLAG_SHOW_LIGHTS;
 			rebootNote.ledOnMS = 200;
 			rebootNote.ledOffMS = 400;
@@ -385,24 +387,23 @@ public class Expsetup extends PreferenceActivity {
 							""));
 			PendingIntent contentIntent = PendingIntent.getService(this, 0,
 					intent, 0);
-	
-			Notification rebootNote = new Notification(R.drawable.status_reboot,
+
+			Notification rebootNote = new Notification(
+					R.drawable.status_reboot,
 					getString(R.string.reboot_required_msg), System
 							.currentTimeMillis());
 			rebootNote.setLatestEventInfo(this, "GUSTO reboot request",
 					getString(R.string.reboot_doit_msg), contentIntent);
-			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-					"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0,
+					new Intent("com.olearyp.gusto.RESET_SERVER_STATE"), 0);
 			rebootNote.flags |= Notification.FLAG_SHOW_LIGHTS;
 			rebootNote.ledOnMS = 200;
 			rebootNote.ledOffMS = 600;
 			rebootNote.ledARGB = Color.argb(255, 255, 255, 0);
 			nm.notify(REBOOT_NOTIFICATION, rebootNote);
 		}
-}
+	}
 
-
-	
 	/*
 	 * Listener for 'generate ep_log' button
 	 */
@@ -486,8 +487,8 @@ public class Expsetup extends PreferenceActivity {
 			// system_needs_reboot = true;
 			// }
 			if (commandid > 0) {
-				sendCommand(getString(commandid), description, requires_reboot ? "reboot-required"
-						: "none");
+				sendCommand(getString(commandid), description,
+						requires_reboot ? "reboot-required" : "none");
 			} else {
 				sendCommand(command, description,
 						requires_reboot ? "reboot-required" : "none");
@@ -544,7 +545,7 @@ public class Expsetup extends PreferenceActivity {
 		}
 
 	}
-	
+
 	private String getServerState() {
 		return settings.getString("serverState", "none");
 	}
