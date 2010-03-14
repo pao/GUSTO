@@ -25,60 +25,15 @@ import android.util.Log;
 
 public class SuServer extends IntentService {
 
-	public class UnsupportedCommandSchemeException extends Exception {
-		private static final long serialVersionUID = 7351188199664441783L;
-
-		private String scheme = "?";
-		
-		public UnsupportedCommandSchemeException(String scheme) {
-			this.scheme = scheme;
-		}
-
-		@Override
-		public String getMessage() {
-			return "Command scheme '" + scheme + "' is not supported by " + SuServer.class.getName() + ".";
-		}
-
-	}
-
-
 	private static final int STATUS_NOTIFICATION = 0x0057A705;
-
-	private NotificationManager nm = null;
-
 
 	public SuServer() {
 		super("SuServer");
 	}
 
 	@Override
-	public void onCreate() {
-		nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-	
-		super.onCreate();
-	}
-
-	@Override
-	public void onDestroy() {
-		// We're done, kill the "running" notification
-		nm.cancel(STATUS_NOTIFICATION);
-		// Create or modify reboot notification, if needed
-		super.onDestroy();
-	}
-
-	@Override
-	public void onStart(Intent intent, int startId) {
-		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
-		if (Uri.parse(intent.toUri(0)).getScheme().equals("commandid")) {
-			cmdString = getString(Integer.parseInt(cmdString));
-		}
-		Log.v(getString(R.string.app_name), "SuServer has received request for command '"
-				+ cmdString + "'.");
-		super.onStart(intent, startId);
-	}
-
-	@Override
 	protected void onHandleIntent(Intent intent) {
+		NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		String cmdString = Uri.parse(intent.toUri(0)).getSchemeSpecificPart();
 		final String scheme = Uri.parse(intent.toUri(0)).getScheme();
 		if (scheme.equals("commandid")) {
@@ -161,6 +116,24 @@ public class SuServer extends IntentService {
 			}
 		}
 
+		// We're done, kill the "command running" notification
+		nm.cancel(STATUS_NOTIFICATION);
+	}
+
+	public class UnsupportedCommandSchemeException extends Exception {
+		private static final long serialVersionUID = 7351188199664441783L;
+	
+		private String scheme = "?";
+		
+		public UnsupportedCommandSchemeException(String scheme) {
+			this.scheme = scheme;
+		}
+	
+		@Override
+		public String getMessage() {
+			return "Command scheme '" + scheme + "' is not supported by " + SuServer.class.getName() + ".";
+		}
+	
 	}
 
 }
