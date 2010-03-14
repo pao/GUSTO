@@ -53,7 +53,7 @@ public class DownloadPreference extends Preference {
 
 	private void init() {
 		this.setOnPreferenceClickListener(new DownloadPreferenceListener());
-		//this.setWidgetLayoutResource(R.layout.download_progress);
+		this.setWidgetLayoutResource(R.layout.download_progress);
 	}
 
 	public String getUri() {
@@ -82,8 +82,8 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-//			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
-//			new Downloader(pb).doInBackground((Void) null);
+			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
+			new Downloader(pb).doInBackground((Void) null);
 			return true;
 		}
 	}
