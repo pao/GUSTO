@@ -87,12 +87,10 @@ public class SuServer extends IntentService {
 			};
 			t.start();
 
-			// Poor man's select()
+			// Collect the output while waiting for task to end
+			StringBuilder status = new StringBuilder();
 			while (t.isAlive()) {
-				String status = stdInput.readLine();
-				if (status != null) {
-					// publishProgress(status);
-				}
+				status.append(stdInput.readLine());
 				Thread.sleep(20);
 			}
 
