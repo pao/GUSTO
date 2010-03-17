@@ -88,8 +88,7 @@ public class DownloadPreference extends Preference {
 		return v;
 	}
 
-	public class DownloadPreferenceListener implements
-			OnPreferenceClickListener {
+	public class DownloadPreferenceListener implements OnPreferenceClickListener {
 		protected boolean isDownloaded = false;
 		protected Context ctxt = null;
 		protected boolean isInstalled;
@@ -104,10 +103,26 @@ public class DownloadPreference extends Preference {
 		public boolean onPreferenceClick(Preference preference) {
 			if (!isDownloaded) {
 				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
-				new Downloader((ProgressBar) v.findViewById(R.id.ProgressBar))
+				new VsappDownloader((ProgressBar) v.findViewById(R.id.ProgressBar))
 						.execute((Void) null);
 				isDownloaded = true;
-			} else {
+				return true;
+			}
+			return false;
+		}
+		
+	}
+	
+	public class VsappPreferenceListener extends
+			DownloadPreferenceListener {
+
+		public VsappPreferenceListener(boolean isDownloaded, Context ctxt) {
+			super(isDownloaded, ctxt);
+		}
+
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			if (!super.onPreferenceClick(preference)) {
 				new AlertDialog.Builder(ctxt)
 						.setTitle("Uninstall")
 						.setPositiveButton("Uninstall", new OnClickListener() {
@@ -135,20 +150,11 @@ public class DownloadPreference extends Preference {
 		}
 	}
 
-	private class Downloader extends AsyncTask<Void, Integer, Void> {
-
-		@Override
-		protected void onPostExecute(Void result) {
-			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
-			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
-			//TODO Install
-			super.onPostExecute(result);
-		}
-
+	private class VsappDownloader extends AsyncTask<Void, Integer, Void> {
 		protected static final long update_block_size = 4096;
 		private ProgressBar pb;
 
-		public Downloader(ProgressBar pb) {
+		public VsappDownloader(ProgressBar pb) {
 			super();
 			this.pb = pb;
 		}
@@ -160,6 +166,15 @@ public class DownloadPreference extends Preference {
 			super.onProgressUpdate(values);
 		}
 
+		@Override
+		protected void onPostExecute(Void result) {
+			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
+			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
+			pb.setIndeterminate(true);
+			//TODO Install
+			super.onPostExecute(result);
+		}
+		
 		@Override
 		protected Void doInBackground(Void... params) {
 			HttpClient client = new DefaultHttpClient();
