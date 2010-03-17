@@ -44,6 +44,8 @@ public class Expsetup extends PreferenceActivity {
 
 	private static final int REBOOT_NOTIFICATION = 0x0043B007;
 
+	private static final String ASPIN_URL = "http://www.androidspin.com/files/enomther/";
+
 	private SharedPreferences settings = null;
 
 	private NotificationManager nm = null;
@@ -59,198 +61,238 @@ public class Expsetup extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		Map<String, String> config = getCurrentConfig();
 
-		((DownloadPreference) findPreference("dl_test")).setUri("http://jkft.info/xbmc/testfiles/channelid/audio/8_Channel_ID_FLAC71.flac");
-		((DownloadPreference) findPreference("dl_test")).setDestination("/sdcard/testfile.flac");
-		
+		String ramhack_file;
+		// ROM-specific settings
+		if (config.get("GLB_EP_VERSION_EPDATA").contains("-TMO")) {
+			findPreference("launcher").setEnabled(false);
+			findPreference("phone").setEnabled(false);
+			findPreference("contacts").setEnabled(false);
+			findPreference("teeter").setEnabled(false);
+			findPreference("quickoffice").setEnabled(false);
+			ramhack_file = "10mb_kernel_patch_tmo241.zip";
+		} else {
+			ramhack_file = "10mb_kernel_patch_adp241.zip";
+		}
+
 		// QuickCommands menu
-		findPreference("reboot").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_alert_title,
-						R.string.reboot_msg, R.string.reboot));
-		findPreference("reboot_recovery")
-				.setOnPreferenceClickListener(
-						new RebootPreferenceListener(
-								R.string.reboot_alert_title,
-								R.string.reboot_recovery_msg,
-								R.string.reboot_recovery));
-		findPreference("reboot_bootloader").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.reboot_alert_title,
-						R.string.reboot_bootloader_msg,
-						R.string.reboot_bootload));
-		findPreference("reboot_poweroff").setOnPreferenceClickListener(
-				new RebootPreferenceListener(R.string.shutdown_alert_title,
-						R.string.shutdown_msg, R.string.shutdown));
-		findPreference("rwsystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener(R.string.rwsystem,
-						"setting /system read-write"));
-		findPreference("rosystem").setOnPreferenceClickListener(
-				new ExpPreferenceListener(R.string.rosystem,
-						"setting /system read-only"));
+		{
+			findPreference("reboot").setOnPreferenceClickListener(
+					new RebootPreferenceListener(R.string.reboot_alert_title,
+							R.string.reboot_msg, R.string.reboot));
+			findPreference("reboot_recovery").setOnPreferenceClickListener(
+					new RebootPreferenceListener(R.string.reboot_alert_title,
+							R.string.reboot_recovery_msg,
+							R.string.reboot_recovery));
+			findPreference("reboot_bootloader").setOnPreferenceClickListener(
+					new RebootPreferenceListener(R.string.reboot_alert_title,
+							R.string.reboot_bootloader_msg,
+							R.string.reboot_bootload));
+			findPreference("reboot_poweroff").setOnPreferenceClickListener(
+					new RebootPreferenceListener(R.string.shutdown_alert_title,
+							R.string.shutdown_msg, R.string.shutdown));
+			findPreference("rwsystem").setOnPreferenceClickListener(
+					new ExpPreferenceListener(R.string.rwsystem,
+							"setting /system read-write"));
+			findPreference("rosystem").setOnPreferenceClickListener(
+					new ExpPreferenceListener(R.string.rosystem,
+							"setting /system read-only"));
+		}
+
+		// CPU options
+		{
+			findPreference("freq_sample").setOnPreferenceChangeListener(
+					new ExpPreferenceListener("yes | set_ep_cyan_ond_mod",
+							"setting frequency scaling"));
+			((CheckBoxPreference) findPreference("freq_sample"))
+					.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
+
+			final List<String> freqs = Arrays.asList(getResources()
+					.getStringArray(R.array.cpu_freqs_str));
+			final ListPreference minFreqPref = (ListPreference) findPreference("cpu_freq_min");
+			final ListPreference maxFreqPref = (ListPreference) findPreference("cpu_freq_max");
+			minFreqPref
+					.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+						@Override
+						public boolean onPreferenceChange(
+								Preference preference, Object newValue) {
+							sendCommand(
+									"GLB_EP_MIN_CPU="
+											+ newValue.toString()
+											+ " && "
+											+ "write_out_ep_config && "
+											+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
+									"setting minimum CPU frequency", "none");
+							String[] legalfreqs = freqs.subList(
+									freqs.indexOf(newValue), freqs.size())
+									.toArray(new String[0]);
+							maxFreqPref.setEntries(legalfreqs);
+							maxFreqPref.setEntryValues(legalfreqs);
+							return true;
+						}
+					});
+			maxFreqPref
+					.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+						@Override
+						public boolean onPreferenceChange(
+								Preference preference, Object newValue) {
+							sendCommand(
+									"GLB_EP_MAX_CPU="
+											+ newValue.toString()
+											+ " && "
+											+ "write_out_ep_config && "
+											+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
+									"setting maximum CPU frequency", "none");
+							String[] legalfreqs = freqs.subList(0,
+									freqs.indexOf(newValue) + 1).toArray(
+									new String[0]);
+							minFreqPref.setEntries(legalfreqs);
+							minFreqPref.setEntryValues(legalfreqs);
+							return true;
+						}
+
+					});
+
+			String[] maxfreqs = freqs.subList(
+					freqs.indexOf(config.get("GLB_EP_MIN_CPU")), freqs.size())
+					.toArray(new String[0]);
+			maxFreqPref.setEntries(maxfreqs);
+			maxFreqPref.setEntryValues(maxfreqs);
+
+			String[] minfreqs = freqs.subList(0,
+					freqs.indexOf(config.get("GLB_EP_MAX_CPU")) + 1).toArray(
+					new String[0]);
+			minFreqPref.setEntries(minfreqs);
+			minFreqPref.setEntryValues(minfreqs);
+
+			maxFreqPref.setValue(config.get("GLB_EP_MAX_CPU"));
+			minFreqPref.setValue(config.get("GLB_EP_MIN_CPU"));
+		}
+
+		// Downloadables
+		{
+			((DownloadPreference) findPreference("ramhack_kernel")).setParams(
+					ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/"
+							+ ramhack_file);
+			((DownloadPreference) findPreference("kernel_mods")).setParams(
+					ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
+					"/sdcard/epvsapps/kmods_v211_vsapp.zip");
+			((DownloadPreference) findPreference("teeter")).setParams(ASPIN_URL
+					+ "APPS/teeter_vsapp.zip",
+					"/sdcard/epvsapps/teeter_vsapp.zip");
+			((DownloadPreference) findPreference("quickoffice")).setParams(
+					ASPIN_URL + "APPS/quickoffice_vsapp.zip",
+					"/sdcard/epvsapps/quickoffice_vsapp.zip");
+			((DownloadPreference) findPreference("ext_widgets")).setParams(
+					ASPIN_URL + "APPS/widgetpack_v2_vsapp.zip",
+					"/sdcard/epvsapps/widgetpack_v2_vsapp.zip");
+			((DownloadPreference) findPreference("xdan_java")).setParams(
+					ASPIN_URL + "APPS/jbed_vsapp.zip",
+					"/sdcard/epvsapps/jbed_vsapp.zip");
+			((DownloadPreference) findPreference("iwnn_ime_jp")).setParams(
+					ASPIN_URL + "APPS/iwnnime_vsapp.zip",
+					"/sdcard/epvsapps/iwnnime_vsapp.zip");
+		}
+
+		// Theme profile settings
+		{
+			findPreference("launcher").setOnPreferenceChangeListener(
+					new ExpThemeProfileChangeListener("Launcher.apk",
+							"changing Launcher"));
+			((CheckBoxPreference) findPreference("launcher"))
+					.setChecked(isTrueish(config, "Launcher.apk"));
+
+			findPreference("phone").setOnPreferenceChangeListener(
+					new ExpThemeProfileChangeListener("Phone.apk",
+							"changing Phone"));
+			((CheckBoxPreference) findPreference("phone"))
+					.setChecked(isTrueish(config, "Phone.apk"));
+
+			findPreference("contacts").setOnPreferenceChangeListener(
+					new ExpThemeProfileChangeListener("Contacts.apk",
+							"changing Contacts"));
+			((CheckBoxPreference) findPreference("contacts"))
+					.setChecked(isTrueish(config, "Contacts.apk"));
+
+			findPreference("browser").setOnPreferenceChangeListener(
+					new ExpThemeProfileChangeListener("Browser.apk",
+							"changing the Browser"));
+			((CheckBoxPreference) findPreference("browser"))
+					.setChecked(isTrueish(config, "Browser.apk"));
+
+			findPreference("mms")
+					.setOnPreferenceChangeListener(
+							new ExpThemeProfileChangeListener("Mms.apk",
+									"changing MMS"));
+			((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
+					config, "Mms.apk"));
+		}
+
+		// Advanced Options
+		{
+			// Swappiness
+			findPreference("swappiness").setOnPreferenceChangeListener(
+					new OnPreferenceChangeListener() {
+						@Override
+						public boolean onPreferenceChange(
+								Preference preference, Object newValue) {
+							sendCommand("yes '" + newValue.toString()
+									+ "' | set_ep_swappiness",
+									"setting swappiness", "none");
+							return true;
+						}
+					});
+			((EditTextPreference) findPreference("swappiness")).setText(config
+					.get("GLB_EP_SWAPPINESS"));
+			((EditTextPreference) findPreference("swappiness")).getEditText()
+					.setKeyListener(new SwappinessKeyListener());
+
+			// Compcache
+			findPreference("compcache").setOnPreferenceChangeListener(
+					new ExpPreferenceListener("yes | toggle_ep_compcache",
+							"setting compcache", true));
+			((CheckBoxPreference) findPreference("compcache"))
+					.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
+
+			// Linux swap
+			findPreference("linux_swap").setOnPreferenceChangeListener(
+					new ExpPreferenceListener("yes | toggle_ep_linuxswap",
+							"setting Linux-swap"));
+			((CheckBoxPreference) findPreference("linux_swap"))
+					.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
+
+			// userinit.sh
+			findPreference("userinit").setOnPreferenceChangeListener(
+					new ExpPreferenceListener("yes | toggle_ep_userinit",
+							"setting userinit"));
+			((CheckBoxPreference) findPreference("userinit"))
+					.setChecked(isTrueish(config, "GLB_EP_RUN_USERINIT"));
+
+			// Remove odex on boot
+			findPreference("odex").setOnPreferenceChangeListener(
+					new ExpPreferenceListener(
+							"yes | toggle_ep_odex_boot_removal",
+							"setting ODEX removal"));
+			((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
+					config, "GLB_EP_ODEX_BOOT_REMOVAL"));
+
+			// Odex now
+			findPreference("reodex").setOnPreferenceClickListener(
+					new ExpPreferenceListener("yes | odex_ep_data_apps",
+							"re-ODEXing apps"));
+
+			// Set pid priorities
+			findPreference("pid_prioritize").setOnPreferenceChangeListener(
+					new ExpPreferenceListener(
+							"yes | toggle_ep_pid_prioritizer",
+							"setting PID prioritizer"));
+			((CheckBoxPreference) findPreference("pid_prioritize"))
+					.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
+		}
 
 		// Generate and send ep_log
 		findPreference("ep_log").setOnPreferenceClickListener(
 				new EpLogListener());
 
-		// CPU options
-		findPreference("freq_sample").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | set_ep_cyan_ond_mod",
-						"setting frequency scaling"));
-		((CheckBoxPreference) findPreference("freq_sample"))
-				.setChecked(isTrueish(config, "GLB_EP_ENABLE_CYAN_OND_MOD"));
-
-		final List<String> freqs = Arrays.asList(getResources().getStringArray(
-				R.array.cpu_freqs_str));
-		final ListPreference minFreqPref = (ListPreference) findPreference("cpu_freq_min");
-		final ListPreference maxFreqPref = (ListPreference) findPreference("cpu_freq_max");
-		minFreqPref
-				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
-						sendCommand(
-								"GLB_EP_MIN_CPU="
-										+ newValue.toString()
-										+ " && "
-										+ "write_out_ep_config && "
-										+ "echo \"$GLB_EP_MIN_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
-								"setting minimum CPU frequency", "none");
-						String[] legalfreqs = freqs.subList(
-								freqs.indexOf(newValue), freqs.size()).toArray(
-								new String[0]);
-						maxFreqPref.setEntries(legalfreqs);
-						maxFreqPref.setEntryValues(legalfreqs);
-						return true;
-					}
-				});
-		maxFreqPref
-				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
-						sendCommand(
-								"GLB_EP_MAX_CPU="
-										+ newValue.toString()
-										+ " && "
-										+ "write_out_ep_config && "
-										+ "echo \"$GLB_EP_MAX_CPU\" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
-								"setting maximum CPU frequency", "none");
-						String[] legalfreqs = freqs.subList(0,
-								freqs.indexOf(newValue) + 1).toArray(
-								new String[0]);
-						minFreqPref.setEntries(legalfreqs);
-						minFreqPref.setEntryValues(legalfreqs);
-						return true;
-					}
-
-				});
-
-		String[] maxfreqs = freqs.subList(
-				freqs.indexOf(config.get("GLB_EP_MIN_CPU")), freqs.size())
-				.toArray(new String[0]);
-		maxFreqPref.setEntries(maxfreqs);
-		maxFreqPref.setEntryValues(maxfreqs);
-
-		String[] minfreqs = freqs.subList(0,
-				freqs.indexOf(config.get("GLB_EP_MAX_CPU")) + 1).toArray(
-				new String[0]);
-		minFreqPref.setEntries(minfreqs);
-		minFreqPref.setEntryValues(minfreqs);
-
-		maxFreqPref.setValue(config.get("GLB_EP_MAX_CPU"));
-		minFreqPref.setValue(config.get("GLB_EP_MIN_CPU"));
-
-		// Swappiness
-		findPreference("swappiness").setOnPreferenceChangeListener(
-				new OnPreferenceChangeListener() {
-					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
-						sendCommand("yes '" + newValue.toString()
-								+ "' | set_ep_swappiness",
-								"setting swappiness", "none");
-						return true;
-					}
-				});
-		((EditTextPreference) findPreference("swappiness")).setText(config
-				.get("GLB_EP_SWAPPINESS"));
-		((EditTextPreference) findPreference("swappiness")).getEditText()
-				.setKeyListener(new SwappinessKeyListener());
-
-		// Compcache
-		findPreference("compcache").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_compcache",
-						"setting compcache", true));
-		((CheckBoxPreference) findPreference("compcache"))
-				.setChecked(isTrueish(config, "GLB_EP_ENABLE_COMPCACHE"));
-
-		// Linux swap
-		findPreference("linux_swap").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_linuxswap",
-						"setting Linux-swap"));
-		((CheckBoxPreference) findPreference("linux_swap"))
-				.setChecked(isTrueish(config, "GLB_EP_ENABLE_LINUXSWAP"));
-
-		// userinit.sh
-		findPreference("userinit").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_userinit",
-						"setting userinit"));
-		((CheckBoxPreference) findPreference("userinit")).setChecked(isTrueish(
-				config, "GLB_EP_RUN_USERINIT"));
-
-		// Remove odex on boot
-		findPreference("odex").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_odex_boot_removal",
-						"setting ODEX removal"));
-		((CheckBoxPreference) findPreference("odex")).setChecked(isTrueish(
-				config, "GLB_EP_ODEX_BOOT_REMOVAL"));
-
-		// Odex now
-		findPreference("reodex").setOnPreferenceClickListener(
-				new ExpPreferenceListener("yes | odex_ep_data_apps",
-						"re-ODEXing apps"));
-
-		// Set pid priorities
-		findPreference("pid_prioritize").setOnPreferenceChangeListener(
-				new ExpPreferenceListener("yes | toggle_ep_pid_prioritizer",
-						"setting PID prioritizer"));
-		((CheckBoxPreference) findPreference("pid_prioritize"))
-				.setChecked(isTrueish(config, "GLB_EP_PID_PRIORITIZE"));
-
-		// Theme profile settings
-		if (config.get("GLB_EP_VERSION_EPDATA").contains("-TMO")) {
-			findPreference("launcher").setEnabled(false);
-			findPreference("phone").setEnabled(false);
-			findPreference("contacts").setEnabled(false);
-		}
-
-		findPreference("launcher").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Launcher.apk",
-						"changing Launcher"));
-		((CheckBoxPreference) findPreference("launcher")).setChecked(isTrueish(
-				config, "Launcher.apk"));
-
-		findPreference("phone")
-				.setOnPreferenceChangeListener(
-						new ExpThemeProfileChangeListener("Phone.apk",
-								"changing Phone"));
-		((CheckBoxPreference) findPreference("phone")).setChecked(isTrueish(
-				config, "Phone.apk"));
-
-		findPreference("contacts").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Contacts.apk",
-						"changing Contacts"));
-		((CheckBoxPreference) findPreference("contacts")).setChecked(isTrueish(
-				config, "Contacts.apk"));
-
-		findPreference("browser").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Browser.apk",
-						"changing the Browser"));
-		((CheckBoxPreference) findPreference("browser")).setChecked(isTrueish(
-				config, "Browser.apk"));
-
-		findPreference("mms").setOnPreferenceChangeListener(
-				new ExpThemeProfileChangeListener("Mms.apk", "changing MMS"));
-		((CheckBoxPreference) findPreference("mms")).setChecked(isTrueish(
-				config, "Mms.apk"));
 	}
 
 	@Override

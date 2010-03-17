@@ -1,42 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-Copyright 2010 Patrick O'Leary.  All rights reserved.
- The contents of this file are subject to the terms of the
- Common Development and Distribution License, Version 1.0 only.
- See the file CDDL.txt in this distribution or
- http://opensource.org/licenses/cddl1.php for details.
--->
-<PreferenceScreen
-  xmlns:android="http://schemas.android.com/apk/res/android" android:title="GUSTO: GUI Used to Setup TheOfficial">
-<com.olearyp.gusto.DownloadPreference android:title="DOWNLOADPREF TEST" android:key="dl_test"/>
-<PreferenceScreen android:key="qcommands" android:title="QuickCommands"><Preference android:title="Reboot" android:key="reboot"></Preference>
-<Preference android:key="reboot_recovery" android:title="Reboot to recovery"></Preference>
-<Preference android:key="reboot_bootloader" android:title="Reboot to bootloader"></Preference>
-<Preference android:title="Shutdown" android:key="reboot_poweroff"></Preference>
+	<!--
+		Copyright 2010 Patrick O'Leary. All rights reserved. The contents of
+		this file are subject to the terms of the Common Development and
+		Distribution License, Version 1.0 only. See the file CDDL.txt in this
+		distribution or http://opensource.org/licenses/cddl1.php for details.
+	-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:title="GUSTO: GUI Used to Setup TheOfficial">
 
+	<PreferenceScreen android:key="qcommands"
+		android:title="QuickCommands">
+		<Preference android:title="Reboot" android:key="reboot"></Preference>
+		<Preference android:key="reboot_recovery" android:title="Reboot to recovery"></Preference>
+		<Preference android:key="reboot_bootloader" android:title="Reboot to bootloader"></Preference>
+		<Preference android:title="Shutdown" android:key="reboot_poweroff"></Preference>
+		<Preference android:title="Set /system read/write"
+			android:key="rwsystem"></Preference>
+		<Preference android:title="Set /system read-only"
+			android:key="rosystem"></Preference>
+	</PreferenceScreen>
 
-<Preference android:title="Set /system read/write" android:key="rwsystem"></Preference>
-<Preference android:title="Set /system read-only" android:key="rosystem"></Preference>
-</PreferenceScreen><PreferenceScreen android:title="CPU options" android:key="cpu_opts"><CheckBoxPreference android:title="Frequency sampler" android:summaryOff="Normal" android:key="freq_sample" android:summaryOn="Cyanogenized" android:persistent="false"></CheckBoxPreference><ListPreference android:title="Min CPU frequency" android:dialogTitle="Set minimum CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_min" android:persistent="false" android:entryValues="@array/cpu_freqs_str"></ListPreference><ListPreference android:title="Max CPU frequency" android:entries="@array/cpu_freqs_str" android:key="cpu_freq_max" android:persistent="false" android:dialogTitle="Set maximum CPU frequency" android:entryValues="@array/cpu_freqs_str"></ListPreference></PreferenceScreen><EditTextPreference android:title="Swappiness" android:dialogTitle="Set swappiness" android:key="swappiness" android:persistent="false"></EditTextPreference><CheckBoxPreference android:title="Compcache" android:summaryOn="Use compcache" android:summaryOff="Do not use compcache" android:key="compcache" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="Linux Swap" android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled" android:key="linux_swap" android:persistent="false"></CheckBoxPreference>
-<CheckBoxPreference android:title="User init script" android:summaryOn="Run userinit.sh at startup" android:summaryOff="Do not run userinit.sh at startup" android:key="userinit" android:persistent="false"></CheckBoxPreference>
+	<PreferenceScreen android:title="CPU options"
+		android:key="cpu_opts">
+		<CheckBoxPreference android:title="Frequency sampler"
+			android:summaryOff="Normal" android:key="freq_sample"
+			android:summaryOn="Cyanogenized" android:persistent="false"></CheckBoxPreference>
+		<ListPreference android:title="Min CPU frequency"
+			android:dialogTitle="Set minimum CPU frequency" android:entries="@array/cpu_freqs_str"
+			android:key="cpu_freq_min" android:persistent="false"
+			android:entryValues="@array/cpu_freqs_str"></ListPreference>
+		<ListPreference android:title="Max CPU frequency"
+			android:entries="@array/cpu_freqs_str" android:key="cpu_freq_max"
+			android:persistent="false" android:dialogTitle="Set maximum CPU frequency"
+			android:entryValues="@array/cpu_freqs_str"></ListPreference>
+	</PreferenceScreen>
 
+	<PreferenceScreen android:key="downloadables"
+		android:title="Download/Install Optional Components">
+		<com.olearyp.gusto.DownloadPreference
+			android:title="10 MB &quot;RAMhack&quot; kernel mod" android:key="ramhack_kernel" />
+		<PreferenceCategory android:title="VSAPPs"
+			android:key="vsapps">
+			<com.olearyp.gusto.DownloadPreference
+				android:title="TheOfficial kernel modules" android:key="kernel_mods" />
+			<com.olearyp.gusto.DownloadPreference
+				android:title="HTC Teeter game" android:key="teeter" />
+			<com.olearyp.gusto.DownloadPreference
+				android:title="HTC QuickOffice" android:key="quickoffice" />
+			<com.olearyp.gusto.DownloadPreference
+				android:title="Extended Widget Pack" android:key="ext_widgets" />
+			<com.olearyp.gusto.DownloadPreference
+				android:title="xDan's Java.apk" android:key="xdan_java" />
+			<com.olearyp.gusto.DownloadPreference
+				android:title="iWnn_IME (Japanese)" android:key="iwnn_ime_jp" />
+			<Preference android:title="Install VSAPPs" android:key="install_vsapps"></Preference>
+			<Preference android:title="Uninstall VSAPPs" android:key="uninstall_vsapps"></Preference>
+		</PreferenceCategory>
+	</PreferenceScreen>
 
+	<PreferenceScreen android:title="Theme profile"
+		android:key="theme_profile">
+		<CheckBoxPreference android:title="Launcher"
+			android:summaryOn="irrenhaus/rogro82 Advanced Launcher"
+			android:summaryOff="enom's 5-screen standard launcher" android:key="launcher"
+			android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="Phone"
+			android:summaryOff="Stock Donut phone" android:summaryOn="cytown's phone"
+			android:key="phone" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="Contacts/dialer"
+			android:summaryOn="Wysie's contacts/dialer" android:summaryOff="Stock Donut contacts/dialer"
+			android:key="contacts" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="Browser"
+			android:summaryOn="Loccy's BetterBrowser" android:summaryOff="Stock Donut browser"
+			android:key="browser" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="MMS"
+			android:summaryOn="rgv151's MMS" android:summaryOff="Stock Donut MMS"
+			android:key="mms" android:persistent="false"></CheckBoxPreference>
+	</PreferenceScreen>
 
+	<PreferenceScreen android:key="advanced_opts"
+		android:title="Advanced options">
+		<EditTextPreference android:title="Swappiness"
+			android:dialogTitle="Set swappiness" android:key="swappiness"
+			android:persistent="false"></EditTextPreference>
+		<CheckBoxPreference android:title="Compcache"
+			android:summaryOn="Use compcache" android:summaryOff="Do not use compcache"
+			android:key="compcache" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="Linux Swap"
+			android:summaryOn="Swap partition enabled" android:summaryOff="Swap partition disabled"
+			android:key="linux_swap" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:title="User init script"
+			android:summaryOn="Run userinit.sh at startup" android:summaryOff="Do not run userinit.sh at startup"
+			android:key="userinit" android:persistent="false"></CheckBoxPreference>
+		<CheckBoxPreference android:summaryOff="Do not remove odex files at boot"
+			android:title="ODEX file handling" android:key="odex"
+			android:summaryOn="Remove odex files at boot" android:persistent="false"></CheckBoxPreference>
+		<Preference android:key="reodex" android:title="ODEX /data/app now"
+			android:persistent="false"></Preference>
+		<CheckBoxPreference android:title="Prioritize critical applications"
+			android:key="pid_prioritize" android:summary="Increase priority of phone processes"
+			android:persistent="false"></CheckBoxPreference>
+	</PreferenceScreen>
 
-
-
-
-
-
-<PreferenceScreen android:title="Theme profile"><CheckBoxPreference android:title="Launcher" android:summaryOn="irrenhaus/rogro82 Advanced Launcher" android:summaryOff="enom's 5-screen standard launcher" android:key="launcher" android:persistent="false"></CheckBoxPreference>
-<CheckBoxPreference android:title="Phone" android:summaryOff="Stock Donut phone" android:summaryOn="cytown's phone" android:key="phone" android:persistent="false"></CheckBoxPreference>
-<CheckBoxPreference android:title="Contacts/dialer" android:summaryOn="Wysie's contacts/dialer" android:summaryOff="Stock Donut contacts/dialer" android:key="contacts" android:persistent="false"></CheckBoxPreference>
-<CheckBoxPreference android:title="Browser" android:summaryOn="Loccy's BetterBrowser" android:summaryOff="Stock Donut browser" android:key="browser" android:persistent="false"></CheckBoxPreference><CheckBoxPreference android:title="MMS" android:summaryOn="rgv151's MMS" android:summaryOff="Stock Donut MMS" android:key="mms" android:persistent="false"></CheckBoxPreference>
-
-
-</PreferenceScreen><CheckBoxPreference android:summaryOff="Do not remove odex files at boot" android:title="ODEX file handling" android:key="odex" android:summaryOn="Remove odex files at boot" android:persistent="false"></CheckBoxPreference>
-<Preference android:key="reodex" android:title="ODEX /data/app now" android:persistent="false"></Preference>
-<CheckBoxPreference android:title="Prioritize critical applications" android:key="pid_prioritize" android:summary="Increase priority of phone processes" android:persistent="false"></CheckBoxPreference><Preference android:title="Generate ep_log" android:key="ep_log" android:persistent="false"></Preference>
-
-
+	<Preference android:title="Generate ep_log" android:key="ep_log"
+		android:persistent="false"></Preference>
 </PreferenceScreen>

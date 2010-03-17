@@ -29,7 +29,9 @@ import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
+import android.widget.ViewSwitcher;
 
 public class DownloadPreference extends Preference {
 
@@ -57,12 +59,17 @@ public class DownloadPreference extends Preference {
 		this.setWidgetLayoutResource(R.layout.download_progress);
 	}
 
-	public String getUri() {
-		return url;
+	public void setParams(String url, String destination) {
+		this.url = url;
+		this.destination = destination;
 	}
 
-	public void setUri(String uri) {
-		this.url = uri;
+	public String getUrl() {
+		return url;
+	}
+	
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public String getDestination() {
@@ -85,8 +92,9 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
+			//((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
 			if (!isDownloading) {
-				ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
+				ProgressBar pb = (ProgressBar) v.findViewById(R.id.ProgressBar);
 				new Downloader(pb).execute((Void) null);
 			}
 			isDownloading = true;
@@ -102,12 +110,12 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			((DownloadPreferenceListener) DownloadPreference.this
-					.getOnPreferenceClickListener()).resetDownloadingState();
+			//((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
+			//((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
 			super.onPostExecute(result);
 		}
 
-		protected static final long dl_block_size = 4096;
+		protected static final long update_block_size = 4096;
 		private ProgressBar pb;
 
 		public Downloader(ProgressBar pb) {
@@ -117,6 +125,7 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
+			pb.setIndeterminate(false);
 			pb.setProgress(values[0]);
 			super.onProgressUpdate(values);
 		}
@@ -146,7 +155,7 @@ public class DownloadPreference extends Preference {
 							int bytesRead = 0;
 							while (bytesRead < fileLen) {
 								bytesRead += fout_chan.transferFrom(dl_chan,
-										bytesRead, dl_block_size);
+										bytesRead, update_block_size);
 								publishProgress(Math.round(bytesRead
 										/ fileLen.floatValue() * 100));
 							}
