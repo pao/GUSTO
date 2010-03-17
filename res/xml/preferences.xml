@@ -53,8 +53,8 @@
 				android:title="xDan's Java.apk" android:key="xdan_java" />
 			<com.olearyp.gusto.DownloadPreference
 				android:title="iWnn_IME (Japanese)" android:key="iwnn_ime_jp" />
-			<Preference android:title="Install VSAPPs" android:key="install_vsapps"></Preference>
-			<Preference android:title="Uninstall VSAPPs" android:key="uninstall_vsapps"></Preference>
+			
+			
 		</PreferenceCategory>
 	</PreferenceScreen>
 

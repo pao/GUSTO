@@ -23,7 +23,10 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.preference.Preference;
 import android.util.AttributeSet;
@@ -55,7 +58,6 @@ public class DownloadPreference extends Preference {
 	}
 
 	private void init() {
-		this.setOnPreferenceClickListener(new DownloadPreferenceListener());
 		this.setWidgetLayoutResource(R.layout.download_progress);
 	}
 
@@ -67,7 +69,7 @@ public class DownloadPreference extends Preference {
 	public String getUrl() {
 		return url;
 	}
-	
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
@@ -86,23 +88,50 @@ public class DownloadPreference extends Preference {
 		return v;
 	}
 
-	private class DownloadPreferenceListener implements
+	public class DownloadPreferenceListener implements
 			OnPreferenceClickListener {
-		boolean isDownloading = false;
+		protected boolean isDownloaded = false;
+		protected Context ctxt = null;
+		protected boolean isInstalled;
+
+		public DownloadPreferenceListener(boolean isDownloaded, Context ctxt) {
+			super();
+			this.isDownloaded = isDownloaded;
+			this.ctxt = ctxt;
+		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			if (!isDownloading) {
+			if (!isDownloaded) {
 				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
-				ProgressBar pb = (ProgressBar) v.findViewById(R.id.ProgressBar);
-				new Downloader(pb).execute((Void) null);
+				new Downloader((ProgressBar) v.findViewById(R.id.ProgressBar))
+						.execute((Void) null);
+				isDownloaded = true;
+			} else {
+				new AlertDialog.Builder(ctxt)
+						.setTitle("Uninstall")
+						.setPositiveButton("Uninstall", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								//TODO Uninstall
+								((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(false);
+							}
+						})
+						.setNeutralButton("Purge", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(false);
+								new File(destination).delete();
+								isDownloaded = false;
+							}
+						})
+						.setNegativeButton("Keep", null)
+						.setMessage(
+								"You may uninstall this VSAPP, uninstall it and "
+										+ "delete its installation package (purge), or do "
+										+ "nothing (keep).").show();
 			}
-			isDownloading = true;
 			return true;
-		}
-
-		public void resetDownloadingState() {
-			isDownloading = false;
 		}
 	}
 
@@ -112,6 +141,7 @@ public class DownloadPreference extends Preference {
 		protected void onPostExecute(Void result) {
 			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
 			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
+			//TODO Install
 			super.onPostExecute(result);
 		}
 
@@ -132,9 +162,7 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			// Create an instance of HttpClient.
 			HttpClient client = new DefaultHttpClient();
-
 			try {
 				HttpGet method = new HttpGet(url);
 				ResponseHandler<Void> responseHandler = new ResponseHandler<Void>() {
@@ -148,6 +176,7 @@ public class DownloadPreference extends Preference {
 							ReadableByteChannel dl_chan = Channels
 									.newChannel(filecont);
 							File dst = new File(destination);
+							dst.getParentFile().mkdirs();
 							dst.createNewFile();
 							FileOutputStream fout = new FileOutputStream(dst);
 							FileChannel fout_chan = fout.getChannel();

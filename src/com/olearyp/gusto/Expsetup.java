@@ -170,27 +170,42 @@ public class Expsetup extends PreferenceActivity {
 
 		// Downloadables
 		{
-			((DownloadPreference) findPreference("ramhack_kernel")).setParams(
-					ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/"
-							+ ramhack_file);
-			((DownloadPreference) findPreference("kernel_mods")).setParams(
-					ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
-					"/sdcard/epvsapps/kmods_v211_vsapp.zip");
-			((DownloadPreference) findPreference("teeter")).setParams(ASPIN_URL
-					+ "APPS/teeter_vsapp.zip",
-					"/sdcard/epvsapps/teeter_vsapp.zip");
-			((DownloadPreference) findPreference("quickoffice")).setParams(
-					ASPIN_URL + "APPS/quickoffice_vsapp.zip",
-					"/sdcard/epvsapps/quickoffice_vsapp.zip");
-			((DownloadPreference) findPreference("ext_widgets")).setParams(
-					ASPIN_URL + "APPS/widgetpack_v2_vsapp.zip",
-					"/sdcard/epvsapps/widgetpack_v2_vsapp.zip");
-			((DownloadPreference) findPreference("xdan_java")).setParams(
-					ASPIN_URL + "APPS/jbed_vsapp.zip",
-					"/sdcard/epvsapps/jbed_vsapp.zip");
-			((DownloadPreference) findPreference("iwnn_ime_jp")).setParams(
-					ASPIN_URL + "APPS/iwnnime_vsapp.zip",
-					"/sdcard/epvsapps/iwnnime_vsapp.zip");
+			DownloadPreference p;
+			p = ((DownloadPreference) findPreference("ramhack_kernel"));
+			p.setParams(ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/"
+					+ ramhack_file);
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("kernel_mods"));
+			p.setParams(ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
+					"/sdcard/epvsapps/available/kmods_v211_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("teeter"));
+			p.setParams(ASPIN_URL + "APPS/teeter_vsapp.zip",
+					"/sdcard/epvsapps/available/teeter_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("quickoffice"));
+			p.setParams(ASPIN_URL + "APPS/quickoffice_vsapp.zip",
+					"/sdcard/epvsapps/available/quickoffice_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("ext_widgets"));
+			p.setParams(ASPIN_URL + "APPS/widgetpack_v2_vsapp.zip",
+					"/sdcard/epvsapps/available/widgetpack_v2_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("xdan_java"));
+			p.setParams(ASPIN_URL + "APPS/jbed_vsapp.zip",
+					"/sdcard/epvsapps/available/jbed_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
+			p = ((DownloadPreference) findPreference("iwnn_ime_jp"));
+			p.setParams(ASPIN_URL + "APPS/iwnnime_vsapp.zip",
+					"/sdcard/epvsapps/available/iwnnime_vsapp.zip");
+			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
+					false, this));
 		}
 
 		// Theme profile settings
