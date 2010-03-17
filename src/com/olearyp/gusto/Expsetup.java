@@ -175,37 +175,47 @@ public class Expsetup extends PreferenceActivity {
 			p.setParams(ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/"
 					+ ramhack_file);
 			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
-					false, this));
+					new File("/sdcard/" + ramhack_file).exists(), this));
 			p = ((DownloadPreference) findPreference("kernel_mods"));
 			p.setParams(ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
 					"/sdcard/epvsapps/available/kmods_v211_vsapp.zip");
 			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+					new File("/sdcard/epvsapps/available/kmods_v211_vsapp.zip")
+							.exists(), this));
 			p = ((DownloadPreference) findPreference("teeter"));
 			p.setParams(ASPIN_URL + "APPS/teeter_vsapp.zip",
 					"/sdcard/epvsapps/available/teeter_vsapp.zip");
 			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+					new File("/sdcard/epvsapps/available/teeter_vsapp.zip")
+							.exists(), this));
 			p = ((DownloadPreference) findPreference("quickoffice"));
 			p.setParams(ASPIN_URL + "APPS/quickoffice_vsapp.zip",
 					"/sdcard/epvsapps/available/quickoffice_vsapp.zip");
-			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+			p
+					.setOnPreferenceClickListener(p.new VsappPreferenceListener(
+							new File(
+									"/sdcard/epvsapps/available/quickoffice_vsapp.zip")
+									.exists(), this));
 			p = ((DownloadPreference) findPreference("ext_widgets"));
 			p.setParams(ASPIN_URL + "APPS/widgetpack_v2_vsapp.zip",
 					"/sdcard/epvsapps/available/widgetpack_v2_vsapp.zip");
-			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+			p
+					.setOnPreferenceClickListener(p.new VsappPreferenceListener(
+							new File(
+									"/sdcard/epvsapps/available/widgetpack_v2_vsapp.zip")
+									.exists(), this));
 			p = ((DownloadPreference) findPreference("xdan_java"));
 			p.setParams(ASPIN_URL + "APPS/jbed_vsapp.zip",
 					"/sdcard/epvsapps/available/jbed_vsapp.zip");
 			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+					new File("/sdcard/epvsapps/available/jbed_vsapp.zip")
+							.exists(), this));
 			p = ((DownloadPreference) findPreference("iwnn_ime_jp"));
 			p.setParams(ASPIN_URL + "APPS/iwnnime_vsapp.zip",
 					"/sdcard/epvsapps/available/iwnnime_vsapp.zip");
 			p.setOnPreferenceClickListener(p.new VsappPreferenceListener(
-					false, this));
+					new File("/sdcard/epvsapps/available/iwnnime_vsapp.zip")
+							.exists(), this));
 		}
 
 		// Theme profile settings

@@ -85,13 +85,18 @@ public class DownloadPreference extends Preference {
 	@Override
 	protected View onCreateView(ViewGroup parent) {
 		v = super.onCreateView(parent);
+		if (this.getOnPreferenceClickListener() != null
+				&& ((DownloadPreferenceListener) this
+						.getOnPreferenceClickListener()).isDownloaded()) {
+			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
+		}
 		return v;
 	}
 
-	public class DownloadPreferenceListener implements OnPreferenceClickListener {
+	public class DownloadPreferenceListener implements
+			OnPreferenceClickListener {
 		protected boolean isDownloaded = false;
 		protected Context ctxt = null;
-		protected boolean isInstalled;
 
 		public DownloadPreferenceListener(boolean isDownloaded, Context ctxt) {
 			super();
@@ -103,18 +108,20 @@ public class DownloadPreference extends Preference {
 		public boolean onPreferenceClick(Preference preference) {
 			if (!isDownloaded) {
 				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
-				new VsappDownloader((ProgressBar) v.findViewById(R.id.ProgressBar))
-						.execute((Void) null);
+				new VsappDownloader((ProgressBar) v
+						.findViewById(R.id.ProgressBar)).execute((Void) null);
 				isDownloaded = true;
 				return true;
 			}
 			return false;
 		}
-		
+
+		public boolean isDownloaded() {
+			return isDownloaded;
+		}
 	}
-	
-	public class VsappPreferenceListener extends
-			DownloadPreferenceListener {
+
+	public class VsappPreferenceListener extends DownloadPreferenceListener {
 
 		public VsappPreferenceListener(boolean isDownloaded, Context ctxt) {
 			super(isDownloaded, ctxt);
@@ -127,15 +134,17 @@ public class DownloadPreference extends Preference {
 						.setTitle("Uninstall")
 						.setPositiveButton("Uninstall", new OnClickListener() {
 							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								//TODO Uninstall
-								((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(false);
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// TODO Uninstall
 							}
 						})
 						.setNeutralButton("Purge", new OnClickListener() {
 							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(false);
+							public void onClick(DialogInterface dialog,
+									int which) {
+								((CheckBox) v.findViewById(R.id.CheckBox))
+										.setChecked(false);
 								new File(destination).delete();
 								isDownloaded = false;
 							}
@@ -171,10 +180,10 @@ public class DownloadPreference extends Preference {
 			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
 			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
 			pb.setIndeterminate(true);
-			//TODO Install
+			// TODO Install
 			super.onPostExecute(result);
 		}
-		
+
 		@Override
 		protected Void doInBackground(Void... params) {
 			HttpClient client = new DefaultHttpClient();
