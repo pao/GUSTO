@@ -79,20 +79,33 @@ public class DownloadPreference extends Preference {
 		return v;
 	}
 
-	private class DownloadPreferenceListener implements OnPreferenceClickListener {
+	private class DownloadPreferenceListener implements
+			OnPreferenceClickListener {
 		boolean isDownloading = false;
+
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			if(!isDownloading) {
+			if (!isDownloading) {
 				ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
 				new Downloader(pb).execute((Void) null);
 			}
 			isDownloading = true;
 			return true;
 		}
+
+		public void resetDownloadingState() {
+			isDownloading = false;
+		}
 	}
-	
+
 	private class Downloader extends AsyncTask<Void, Integer, Void> {
+
+		@Override
+		protected void onPostExecute(Void result) {
+			((DownloadPreferenceListener) DownloadPreference.this
+					.getOnPreferenceClickListener()).resetDownloadingState();
+			super.onPostExecute(result);
+		}
 
 		protected static final long dl_block_size = 4096;
 		private ProgressBar pb;
@@ -121,18 +134,21 @@ public class DownloadPreference extends Preference {
 							throws ClientProtocolException, IOException {
 						HttpEntity entity = response.getEntity();
 						Long fileLen = entity.getContentLength();
-						if(entity != null) {
+						if (entity != null) {
 							InputStream filecont = entity.getContent();
-							ReadableByteChannel dl_chan = Channels.newChannel(filecont);
+							ReadableByteChannel dl_chan = Channels
+									.newChannel(filecont);
 							File dst = new File(destination);
 							dst.createNewFile();
 							FileOutputStream fout = new FileOutputStream(dst);
 							FileChannel fout_chan = fout.getChannel();
-							
+
 							int bytesRead = 0;
-							while(bytesRead < fileLen) {
-								bytesRead += fout_chan.transferFrom(dl_chan, bytesRead, dl_block_size);
-								publishProgress(Math.round(bytesRead/fileLen.floatValue()*100));
+							while (bytesRead < fileLen) {
+								bytesRead += fout_chan.transferFrom(dl_chan,
+										bytesRead, dl_block_size);
+								publishProgress(Math.round(bytesRead
+										/ fileLen.floatValue() * 100));
 							}
 						}
 						return null;
@@ -150,6 +166,6 @@ public class DownloadPreference extends Preference {
 			client.getConnectionManager().shutdown();
 			return null;
 		}
-		
+
 	}
 }
