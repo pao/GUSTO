@@ -5,13 +5,16 @@
 		Distribution License, Version 1.0 only. See the file CDDL.txt in this
 		distribution or http://opensource.org/licenses/cddl1.php for details.
 	-->
-<!-- <ViewSwitcher android:id="@+id/ViewSwitcher"
+<ViewSwitcher android:id="@+id/ViewSwitcher"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	xmlns:android="http://schemas.android.com/apk/res/android">
-	<CheckBox android:id="@+id/CheckBox" android:layout_width="wrap_content"
-		android:layout_height="wrap_content"></CheckBox>-->
-	<ProgressBar xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:focusable="false" android:layout_gravity="center">
+	<CheckBox android:id="@+id/CheckBox" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:clickable="false"
+		android:focusable="false" android:layout_gravity="center"></CheckBox>
+	<ProgressBar android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:indeterminate="true"
-		android:id="@+id/ProgressBar" style="?android:attr/progressBarStyleHorizontal">
+		android:id="@+id/ProgressBar" style="?android:attr/progressBarStyleHorizontal"
+		android:layout_gravity="center">
 	</ProgressBar>
-<!-- </ViewSwitcher> -->
+</ViewSwitcher>

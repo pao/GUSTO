@@ -92,8 +92,8 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			//((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
 			if (!isDownloading) {
+				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
 				ProgressBar pb = (ProgressBar) v.findViewById(R.id.ProgressBar);
 				new Downloader(pb).execute((Void) null);
 			}
@@ -110,8 +110,8 @@ public class DownloadPreference extends Preference {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			//((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
-			//((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
+			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
+			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
 			super.onPostExecute(result);
 		}
 
