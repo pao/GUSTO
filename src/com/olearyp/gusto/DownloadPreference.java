@@ -84,7 +84,7 @@ public class DownloadPreference extends Preference {
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
-			new Downloader(pb).doInBackground((Void) null);
+			new Downloader(pb).execute((Void) null);
 			return true;
 		}
 	}
@@ -130,12 +130,6 @@ public class DownloadPreference extends Preference {
 							while(bytesRead < fileLen) {
 								bytesRead += fout_chan.transferFrom(dl_chan, bytesRead, dl_block_size);
 								publishProgress(Math.round(bytesRead/fileLen.floatValue()*100));
-								try {
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
 							}
 						}
 						return null;
