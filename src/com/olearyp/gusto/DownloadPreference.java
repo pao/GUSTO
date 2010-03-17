@@ -80,11 +80,14 @@ public class DownloadPreference extends Preference {
 	}
 
 	private class DownloadPreferenceListener implements OnPreferenceClickListener {
-
+		boolean isDownloading = false;
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
-			new Downloader(pb).execute((Void) null);
+			if(!isDownloading) {
+				ProgressBar pb = (ProgressBar) v.findViewById(R.id.progress);
+				new Downloader(pb).execute((Void) null);
+			}
+			isDownloading = true;
 			return true;
 		}
 	}
