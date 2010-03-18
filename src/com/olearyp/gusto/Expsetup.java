@@ -8,10 +8,13 @@
 package com.olearyp.gusto;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,14 +40,17 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 import android.view.KeyEvent;
 
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
 
-	static final int REBOOT_NOTIFICATION = 0x0043B007;
+	protected static final int REBOOT_NOTIFICATION = 0x0043B007;
 
 	private static final String ASPIN_URL = "http://www.androidspin.com/files/enomther/";
+
+	private static final int STD_BUF_SIZE = 4096;
 
 	private SharedPreferences settings = null;
 
@@ -175,7 +181,7 @@ public class Expsetup extends PreferenceActivity {
 			p.setParams(ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/"
 					+ ramhack_file);
 			p.setOnPreferenceClickListener(p.new DownloadPreferenceListener(
-					new File("/sdcard/" + ramhack_file).exists(), this));
+					testRamhack(config), this));
 			p = ((DownloadPreference) findPreference("kernel_mods"));
 			p.setParams(ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
 					"/sdcard/epvsapps/available/kmods_v211_vsapp.zip");
@@ -409,7 +415,49 @@ public class Expsetup extends PreferenceActivity {
 			}
 		}
 
+		// Find out if ramhack is installed
+		final Process p;
+		try {
+			p = Runtime.getRuntime().exec("free");
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
+					p.getInputStream()), STD_BUF_SIZE);
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(
+					p.getErrorStream()), STD_BUF_SIZE);
+			BufferedWriter stdOutput = new BufferedWriter(
+					new OutputStreamWriter(p.getOutputStream()), STD_BUF_SIZE);
+			p.waitFor();
+			String status = stdInput.readLine();
+			status = stdInput.readLine();
+			String[] memories = status.trim().split(" +");
+			String mem = memories[1].trim();
+			config.put("system_memory", mem);
+
+			stdInput.close();
+			stdError.close();
+			stdOutput.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return config;
+	}
+
+	/*
+	 * This is a fairly dumb way to determine whether a board is running a
+	 * ramhack kernel. Notably, any 32A board will return true; we'd need to
+	 * come up with some absurd special cases to prevent this though.
+	 */
+	private boolean testRamhack(Map<String, String> config) {
+		int sysmem = Integer.valueOf(config.get("system_memory"));
+		Log.v("GUSTO", "Total system memory: " + Integer.toString(sysmem));
+		if (sysmem < 98000) {
+			return false;
+		}
+		return true;
 	}
 
 	protected void sendCommand(String command, String description, String state) {
