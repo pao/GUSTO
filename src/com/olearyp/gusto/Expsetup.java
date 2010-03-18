@@ -8,13 +8,11 @@
 package com.olearyp.gusto;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -418,23 +416,16 @@ public class Expsetup extends PreferenceActivity {
 		// Find out if ramhack is installed
 		final Process p;
 		try {
-			p = Runtime.getRuntime().exec("free");
+			p = Runtime.getRuntime().exec("busybox free");
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
 					p.getInputStream()), STD_BUF_SIZE);
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(
-					p.getErrorStream()), STD_BUF_SIZE);
-			BufferedWriter stdOutput = new BufferedWriter(
-					new OutputStreamWriter(p.getOutputStream()), STD_BUF_SIZE);
 			p.waitFor();
 			String status = stdInput.readLine();
 			status = stdInput.readLine();
 			String[] memories = status.trim().split(" +");
 			String mem = memories[1].trim();
 			config.put("system_memory", mem);
-
 			stdInput.close();
-			stdError.close();
-			stdOutput.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
