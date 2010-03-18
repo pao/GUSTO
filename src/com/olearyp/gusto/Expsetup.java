@@ -63,9 +63,9 @@ public class Expsetup extends PreferenceActivity {
 			findPreference("contacts").setEnabled(false);
 			findPreference("teeter").setEnabled(false);
 			findPreference("quickoffice").setEnabled(false);
-			ramhack_file = "10mb_kernel_patch_tmo241.zip";
+			ramhack_file = "10mb_kernel_patch_tmo262.zip";
 		} else {
-			ramhack_file = "10mb_kernel_patch_adp241.zip";
+			ramhack_file = "10mb_kernel_patch_adp262.zip";
 		}
 		// QuickCommands menu
 		{
