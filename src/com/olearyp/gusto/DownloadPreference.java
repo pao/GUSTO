@@ -42,6 +42,10 @@ public class DownloadPreference extends Preference {
 	private String destination = "";
 	private View v;
 
+	enum InstallChoice {
+		INSTALL, UNINSTALL
+	}
+
 	public DownloadPreference(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
@@ -96,20 +100,20 @@ public class DownloadPreference extends Preference {
 	public class DownloadPreferenceListener implements
 			OnPreferenceClickListener {
 		protected boolean isDownloaded = false;
-		protected Context ctxt = null;
+		protected Expsetup ep = null;
 
-		public DownloadPreferenceListener(boolean isDownloaded, Context ctxt) {
+		public DownloadPreferenceListener(boolean isDownloaded, Expsetup ep) {
 			super();
 			this.isDownloaded = isDownloaded;
-			this.ctxt = ctxt;
+			this.ep = ep;
 		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			if (!isDownloaded) {
 				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
-				new VsappDownloader((ProgressBar) v
-						.findViewById(R.id.ProgressBar)).execute((Void) null);
+				new Downloader((ProgressBar) v.findViewById(R.id.ProgressBar))
+						.execute((Void) null);
 				isDownloaded = true;
 				return true;
 			}
@@ -119,115 +123,151 @@ public class DownloadPreference extends Preference {
 		public boolean isDownloaded() {
 			return isDownloaded;
 		}
+
+		protected class Downloader extends AsyncTask<Void, Integer, Void> {
+			protected static final long update_block_size = 4096;
+			private ProgressBar pb;
+
+			public Downloader(ProgressBar pb) {
+				super();
+				this.pb = pb;
+			}
+
+			@Override
+			protected void onProgressUpdate(Integer... values) {
+				pb.setIndeterminate(false);
+				pb.setProgress(values[0]);
+				super.onProgressUpdate(values);
+			}
+
+			@Override
+			protected void onPostExecute(Void result) {
+				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher))
+						.showPrevious();
+				((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
+				pb.setIndeterminate(true);
+				super.onPostExecute(result);
+			}
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				HttpClient client = new DefaultHttpClient();
+				try {
+					HttpGet method = new HttpGet(url);
+					ResponseHandler<Void> responseHandler = new ResponseHandler<Void>() {
+						@Override
+						public Void handleResponse(HttpResponse response)
+								throws ClientProtocolException, IOException {
+							HttpEntity entity = response.getEntity();
+							Long fileLen = entity.getContentLength();
+							if (entity != null) {
+								InputStream filecont = entity.getContent();
+								ReadableByteChannel dl_chan = Channels
+										.newChannel(filecont);
+								File dst = new File(destination);
+								dst.getParentFile().mkdirs();
+								dst.createNewFile();
+								FileOutputStream fout = new FileOutputStream(
+										dst);
+								FileChannel fout_chan = fout.getChannel();
+
+								int bytesRead = 0;
+								while (bytesRead < fileLen) {
+									bytesRead += fout_chan.transferFrom(
+											dl_chan, bytesRead,
+											update_block_size);
+									publishProgress(Math.round(bytesRead
+											/ fileLen.floatValue() * 100));
+								}
+							}
+							return null;
+						}
+					};
+					client.execute(method, responseHandler);
+				} catch (ClientProtocolException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				client.getConnectionManager().shutdown();
+				return null;
+			}
+		}
 	}
 
 	public class VsappPreferenceListener extends DownloadPreferenceListener {
 
-		public VsappPreferenceListener(boolean isDownloaded, Context ctxt) {
-			super(isDownloaded, ctxt);
+		public VsappPreferenceListener(boolean isDownloaded, Expsetup ep) {
+			super(isDownloaded, ep);
 		}
 
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			if (!super.onPreferenceClick(preference)) {
-				new AlertDialog.Builder(ctxt)
-						.setTitle("Uninstall")
-						.setPositiveButton("Uninstall", new OnClickListener() {
+			if (!isDownloaded) {
+				((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showNext();
+				new Downloader((ProgressBar) v.findViewById(R.id.ProgressBar)) {
+					@Override
+					protected void onPostExecute(Void result) {
+						manageVsapp(InstallChoice.INSTALL);
+						super.onPostExecute(result);
+					}
+				}.execute((Void) null);
+				isDownloaded = true;
+				return true;
+			} else {
+				new AlertDialog.Builder(ep)
+						.setTitle("VSAPP maintenance")
+						.setPositiveButton("Reinstall", new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								// TODO Uninstall
+								manageVsapp(InstallChoice.INSTALL);
 							}
 						})
-						.setNeutralButton("Purge", new OnClickListener() {
+						.setNeutralButton("Uninstall", new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
+								manageVsapp(InstallChoice.UNINSTALL);
+							}
+						})
+						.setNegativeButton("Purge", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								manageVsapp(InstallChoice.UNINSTALL);
 								((CheckBox) v.findViewById(R.id.CheckBox))
 										.setChecked(false);
 								new File(destination).delete();
 								isDownloaded = false;
 							}
 						})
-						.setNegativeButton("Keep", null)
 						.setMessage(
-								"You may uninstall this VSAPP, uninstall it and "
-										+ "delete its installation package (purge), or do "
-										+ "nothing (keep).").show();
+								"You may reinstall this VSAPP, uninstall it, "
+										+ "uninstall it and delete its installation package (purge), "
+										+ "or press the BACK button to cancel.")
+						.show();
 			}
 			return true;
 		}
-	}
 
-	private class VsappDownloader extends AsyncTask<Void, Integer, Void> {
-		protected static final long update_block_size = 4096;
-		private ProgressBar pb;
-
-		public VsappDownloader(ProgressBar pb) {
-			super();
-			this.pb = pb;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			pb.setIndeterminate(false);
-			pb.setProgress(values[0]);
-			super.onProgressUpdate(values);
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			((ViewSwitcher) v.findViewById(R.id.ViewSwitcher)).showPrevious();
-			((CheckBox) v.findViewById(R.id.CheckBox)).setChecked(true);
-			pb.setIndeterminate(true);
-			// TODO Install
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			HttpClient client = new DefaultHttpClient();
-			try {
-				HttpGet method = new HttpGet(url);
-				ResponseHandler<Void> responseHandler = new ResponseHandler<Void>() {
-					@Override
-					public Void handleResponse(HttpResponse response)
-							throws ClientProtocolException, IOException {
-						HttpEntity entity = response.getEntity();
-						Long fileLen = entity.getContentLength();
-						if (entity != null) {
-							InputStream filecont = entity.getContent();
-							ReadableByteChannel dl_chan = Channels
-									.newChannel(filecont);
-							File dst = new File(destination);
-							dst.getParentFile().mkdirs();
-							dst.createNewFile();
-							FileOutputStream fout = new FileOutputStream(dst);
-							FileChannel fout_chan = fout.getChannel();
-
-							int bytesRead = 0;
-							while (bytesRead < fileLen) {
-								bytesRead += fout_chan.transferFrom(dl_chan,
-										bytesRead, update_block_size);
-								publishProgress(Math.round(bytesRead
-										/ fileLen.floatValue() * 100));
-							}
-						}
-						return null;
-					}
-				};
-				client.execute(method, responseHandler);
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		private void manageVsapp(InstallChoice install_uninstall) {
+			final File file = new File(destination);
+			final String epvspath = file.getParentFile().getParent()
+					+ "/" + file.getName();
+			// File.renameTo() was found to be unreliable here
+			final String mvincmd = "mv " + destination + " " + epvspath;
+			final String mvoutcmd = "mv " + epvspath + " " + destination;
+			if (install_uninstall == InstallChoice.INSTALL) {
+				ep.sendCommand(mvincmd + " && install_vsapps && " + mvoutcmd,
+						"installing VSAPP", "none");
+			} else {
+				ep.sendCommand(mvincmd + " && uninstall_vsapps && " + mvoutcmd,
+						"uninstalling VSAPP", "none");
 			}
-
-			client.getConnectionManager().shutdown();
-			return null;
 		}
-
 	}
 }

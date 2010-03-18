@@ -42,7 +42,7 @@ import android.view.KeyEvent;
 // GUSTO: GUI Used to Setup TheOfficial 
 public class Expsetup extends PreferenceActivity {
 
-	private static final int REBOOT_NOTIFICATION = 0x0043B007;
+	static final int REBOOT_NOTIFICATION = 0x0043B007;
 
 	private static final String ASPIN_URL = "http://www.androidspin.com/files/enomther/";
 
@@ -412,7 +412,7 @@ public class Expsetup extends PreferenceActivity {
 		return config;
 	}
 
-	private void sendCommand(String command, String description, String state) {
+	protected void sendCommand(String command, String description, String state) {
 		Intent runCmd = new Intent("com.olearyp.gusto.SUEXEC");
 		runCmd.setData(
 				Uri.fromParts("command",
@@ -616,11 +616,11 @@ public class Expsetup extends PreferenceActivity {
 
 	}
 
-	private String getServerState() {
+	protected String getServerState() {
 		return settings.getString("serverState", "none");
 	}
 
-	private void setServerState(String state) {
+	protected void setServerState(String state) {
 		if (getIndex(state) > getIndex(getServerState())) {
 			settings.edit().putString("serverState", state).commit();
 		}
