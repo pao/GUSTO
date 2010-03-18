@@ -25,6 +25,7 @@ import android.util.Log;
 
 public class SuServer extends IntentService {
 
+	private static final int STD_BUF_SIZE = 4096;
 	private static final int STATUS_NOTIFICATION = 0x0057A705;
 
 	public SuServer() {
@@ -51,7 +52,7 @@ public class SuServer extends IntentService {
 		Notification note = (Notification) intent
 				.getParcelableExtra("com.olearyp.gusto.RUN_NOTIFICATION");
 
-		Log.v(getString(R.string.app_name), "SuServer is handling command '"
+		Log.v(getString(R.string.app_name), "SuServer: Handling command '"
 				+ cmdString + "'.");
 
 		if (note != null) {
@@ -63,11 +64,11 @@ public class SuServer extends IntentService {
 			// Based on ideas from enomther et al.
 			p = Runtime.getRuntime().exec("su -c sh");
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
+					p.getInputStream()), STD_BUF_SIZE);
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(
-					p.getErrorStream()));
+					p.getErrorStream()), STD_BUF_SIZE);
 			BufferedWriter stdOutput = new BufferedWriter(
-					new OutputStreamWriter(p.getOutputStream()));
+					new OutputStreamWriter(p.getOutputStream()), STD_BUF_SIZE);
 
 			stdOutput.write(cmdString + "; exit\n");
 			stdOutput.flush();
@@ -89,8 +90,10 @@ public class SuServer extends IntentService {
 
 			// Collect the output while waiting for task to end
 			StringBuilder status = new StringBuilder();
-			while (t.isAlive()) {
-				status.append(stdInput.readLine());
+			while (t.isAlive() || stdInput.ready()) {
+				String newLine = stdInput.readLine(); 
+				status.append(newLine);
+				Log.v(getString(R.string.app_name), "SuServer: " + newLine);
 				Thread.sleep(20);
 			}
 
