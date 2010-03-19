@@ -277,8 +277,12 @@ public class Expsetup extends PreferenceActivity {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			final String reboot_type = getSharedPreferences("serverState", Context.MODE_PRIVATE)
 				.getString("serverState", "none");
-			if (reboot_type.equals(getString(R.string.reboot_recovery_required))) {
+			if (reboot_type.equals(getString(R.string.reboot_manual_flash_required))) {
 				rebootDialog(R.string.reboot_alert_title, R.string.reboot_reflash_msg,
+					R.string.reboot_recovery, true).show();
+				return true;
+			} else if (reboot_type.equals(getString(R.string.reboot_recovery_required))) {
+				rebootDialog(R.string.reboot_alert_title, R.string.reboot_autoflash_msg,
 					R.string.reboot_recovery, true).show();
 				return true;
 			} else if (reboot_type.equals(getString(R.string.reboot_required))) {
@@ -399,7 +403,7 @@ public class Expsetup extends PreferenceActivity {
 		runCmd.putExtra("com.olearyp.gusto.RUN_NOTIFICATION", note);
 		startService(runCmd);
 		setServerState(state);
-		if (getServerState().equals(getString(R.string.reboot_recovery_required))) {
+		if (getServerState().equals(getString(R.string.reboot_manual_flash_required))) {
 			final Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri.fromParts(
 				"commandid", Integer.toString(R.string.reboot_recovery), ""));
 			final PendingIntent contentIntent = PendingIntent.getService(this, 0, intent, 0);
@@ -413,6 +417,21 @@ public class Expsetup extends PreferenceActivity {
 			rebootNote.ledOnMS = 200;
 			rebootNote.ledOffMS = 400;
 			rebootNote.ledARGB = Color.argb(255, 255, 0, 0);
+			nm.notify(REBOOT_NOTIFICATION, rebootNote);
+		} else if (getServerState().equals(getString(R.string.reboot_recovery_required))) {
+			final Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri.fromParts(
+				"commandid", Integer.toString(R.string.reboot), ""));
+			final PendingIntent contentIntent = PendingIntent.getService(this, 0, intent, 0);
+			final Notification rebootNote = new Notification(R.drawable.status_reboot,
+				getString(R.string.reboot_autoflash_required_msg), System.currentTimeMillis());
+			rebootNote.setLatestEventInfo(this, "GUSTO reboot request",
+				getString(R.string.reboot_autoflash_doit_msg), contentIntent);
+			rebootNote.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+				"com.olearyp.gusto.RESET_SERVER_STATE"), 0);
+			rebootNote.flags |= Notification.FLAG_SHOW_LIGHTS;
+			rebootNote.ledOnMS = 200;
+			rebootNote.ledOffMS = 600;
+			rebootNote.ledARGB = Color.argb(255, 255, 255, 0);
 			nm.notify(REBOOT_NOTIFICATION, rebootNote);
 		} else if (getServerState().equals(getString(R.string.reboot_required))) {
 			final Intent intent = new Intent("com.olearyp.gusto.SUEXEC").setData(Uri.fromParts(
@@ -558,10 +577,10 @@ public class Expsetup extends PreferenceActivity {
 		public boolean onPreferenceChange(final Preference preference, final Object newValue) {
 			if ((Boolean) newValue) {
 				sendCommand("echo YES > /data/.epdata/theme_profile/" + filename, description,
-					"reboot-recovery-required");
+					getString(R.string.reboot_manual_flash_required));
 			} else {
 				sendCommand("busybox rm -rf /data/.epdata/theme_profile/" + filename, description,
-					"reboot-recovery-required");
+					getString(R.string.reboot_manual_flash_required));
 			}
 			return true;
 		}
@@ -587,7 +606,7 @@ public class Expsetup extends PreferenceActivity {
 		return -1;
 	}
 
-	public class DownloadPreferenceListener implements OnPreferenceClickListener {
+	protected class DownloadPreferenceListener implements OnPreferenceClickListener {
 		protected boolean isDownloaded = false;
 		protected DownloadPreference dp = null;
 
@@ -683,7 +702,7 @@ public class Expsetup extends PreferenceActivity {
 		}
 	}
 
-	public class RamhackPreferenceListener extends DownloadPreferenceListener {
+	private class RamhackPreferenceListener extends DownloadPreferenceListener {
 		public RamhackPreferenceListener(
 			final boolean isDownloaded, final DownloadPreference dp) {
 			super(isDownloaded, dp);
@@ -741,7 +760,7 @@ public class Expsetup extends PreferenceActivity {
 		INSTALL, UNINSTALL
 	}
 
-	public class VsappPreferenceListener extends DownloadPreferenceListener {
+	private class VsappPreferenceListener extends DownloadPreferenceListener {
 
 		public VsappPreferenceListener(
 			final boolean isDownloaded, final DownloadPreference dp) {

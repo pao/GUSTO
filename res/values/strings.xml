@@ -45,8 +45,13 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
 <string-array name="server_states"><item>none</item>
 <item>@string/reboot_required</item>
 <item>@string/reboot_recovery_required</item>
+<item>@string/reboot_manual_flash_required</item>
 </string-array>
 <string name="reboot_recovery_doit_msg">Flash required, select to reboot to recovery</string>
 <string name="reboot_doit_msg">Select to reboot</string>
 <string name="reboot_request_msg">Phone must be rebooted for settings to take effect.  Reboot now?</string>
+<string name="reboot_manual_flash_required">reboot-manual-flash-required</string>
+<string name="reboot_autoflash_msg">The downloaded resource will be automatically flashed when you reboot to recovery.  Reboot to recovery now?</string>
+<string name="reboot_autoflash_required_msg">Reboot to recovery for automatic flash is required</string>
+<string name="reboot_autoflash_doit_msg">Automatic flash required, select to reboot to recovery</string>
 </resources>
