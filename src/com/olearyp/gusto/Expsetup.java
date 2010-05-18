@@ -59,7 +59,7 @@ import android.widget.ViewSwitcher;
 // GUSTO: GUI Used to Setup TheOfficial
 public class Expsetup extends PreferenceActivity {
 	protected static final int REBOOT_NOTIFICATION = 0x0043B007;
-	private static final String ASPIN_URL = "http://www.androidspin.com/files/enomther/";
+	private static final String ASPIN_URL = "http://files.androidspin.com/downloads.php?dir=enomther/";
 	private static final int STD_BUF_SIZE = 4096;
 	private SharedPreferences settings = null;
 	private NotificationManager nm = null;
