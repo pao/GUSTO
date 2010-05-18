@@ -39,6 +39,8 @@
 		android:title="Download/Install Optional Components">
 		<com.olearyp.gusto.DownloadPreference
 			android:title="10 MB &quot;RAMhack&quot; kernel mod" android:key="ramhack_kernel" />
+		<com.olearyp.gusto.DownloadPreference
+			android:title="AlmostNexus Launcher" android:key="adw_launcher" />
 		<PreferenceCategory android:title="VSAPPs"
 			android:key="vsapps">
 			<com.olearyp.gusto.DownloadPreference
@@ -53,8 +55,6 @@
 				android:title="xDan's Java.apk" android:key="xdan_java" />
 			<com.olearyp.gusto.DownloadPreference
 				android:title="iWnn_IME (Japanese)" android:key="iwnn_ime_jp" />
-			
-			
 		</PreferenceCategory>
 	</PreferenceScreen>
 

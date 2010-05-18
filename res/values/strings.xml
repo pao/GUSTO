@@ -7,6 +7,16 @@ Copyright 2010 Patrick O'Leary.  All rights reserved.
  http://opensource.org/licenses/cddl1.php for details.
 -->
 <resources>
+    <string name="install_almostnexus_msg">The AlmostNexus launcher is an alternative launcher (Home) which is not supported by enomther as a part of TheOfficial.  <a href="http://www.jbthemes.com/anderweb/adwlauncher.html">Check out the official site before installing.</a> This operation cannot be undone except by reflashing the expansion pack.</string>
+    <string name="remove_almostnexus_msg">To remove the AlmostNexus launcher, you must manually reflash the expansion pack from recovery, reboot to Android, then flash themes, etc. as desired.  Reboot to recovery now?</string>
+    <string name="remove_almostnexus_title">Remove AlmostNexus launcher</string>
+    <string name="install_almostnexus_title">Install AlmostNexus launcher</string>
+    <string name="remove_ramhack_msg">To remove the ramhack kernel, you must manually reflash the expansion pack from recovery, reboot to Android, then flash themes, etc. as desired.  Reboot to recovery now?</string>
+    <string name="remove_ramhack_title">Ramhack removal</string>
+    <string name="install_ramhack_msg">The "ramhack" kernel will allocate ~10 MB of RAM currently assigned to video memory to the main memory pool. This may improve performance under normal circumstances at the cost of 3D performance.
+
+This operation cannot be undone except by reflashing the expansion pack.</string>
+    <string name="install_ramhack_title">Install ramhack</string>
     
     <string name="shutdown_alert_title">Shutdown?</string>
     <string name="reboot_alert_title">Reboot?</string>

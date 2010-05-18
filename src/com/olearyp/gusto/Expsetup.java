@@ -91,6 +91,7 @@ public class Expsetup extends PreferenceActivity {
 			findPreference("contacts").setEnabled(false);
 			findPreference("teeter").setEnabled(false);
 			findPreference("quickoffice").setEnabled(false);
+			findPreference("adw_launcher").setEnabled(false);
 			ramhack_file = "10mb_kernel_patch_tmo262.zip";
 		} else {
 			ramhack_file = "10mb_kernel_patch_adp262.zip";
@@ -176,7 +177,16 @@ public class Expsetup extends PreferenceActivity {
 			DownloadPreference p;
 			p = ((DownloadPreference) findPreference("ramhack_kernel"));
 			p.setParams(ASPIN_URL + "RESOURCE/" + ramhack_file, "/sdcard/" + ramhack_file);
-			p.setOnPreferenceClickListener(new RamhackPreferenceListener(testRamhack(config), p));
+			p.setOnPreferenceClickListener(new RecFlashPreferenceListener(testRamhack(config), p,
+				R.string.install_ramhack_title, R.string.install_ramhack_msg,
+				R.string.remove_ramhack_title, R.string.remove_ramhack_msg));
+			p = ((DownloadPreference) findPreference("adw_launcher"));
+			p.setParams("http://www.jbthemes.com/anderweb/ADW.Launcher.0.6.999999.2.zip",
+				"/sdcard/ADW.Launcher.0.6.999999.2.zip");
+			p.setOnPreferenceClickListener(new RecFlashPreferenceListener(new File(
+				"/sdcard/ADW.Launcher.0.6.999999.2.zip").exists(), p,
+				R.string.install_almostnexus_title, R.string.install_almostnexus_msg,
+				R.string.remove_almostnexus_title, R.string.remove_almostnexus_msg));
 			p = ((DownloadPreference) findPreference("kernel_mods"));
 			p.setParams(ASPIN_URL + "ROM/kmods_v211_vsapp.zip",
 				"/sdcard/epvsapps/available/kmods_v211_vsapp.zip");
@@ -713,55 +723,55 @@ public class Expsetup extends PreferenceActivity {
 		}
 	}
 
-	private class RamhackPreferenceListener extends DownloadPreferenceListener {
-		public RamhackPreferenceListener(
-			final boolean isDownloaded, final DownloadPreference dp) {
+	private class RecFlashPreferenceListener extends DownloadPreferenceListener {
+		int install_title;
+		int install_msg;
+		int remove_title;
+		int remove_msg;
+
+		public RecFlashPreferenceListener(
+			final boolean isDownloaded, final DownloadPreference dp, final int install_title,
+			final int install_msg, final int remove_title, final int remove_msg) {
 			super(isDownloaded, dp);
+			this.install_title = install_title;
+			this.install_msg = install_msg;
+			this.remove_title = remove_title;
+			this.remove_msg = remove_msg;
 		}
 
 		@Override
 		public boolean onPreferenceClick(final Preference preference) {
 			if (!isDownloaded) {
-				new AlertDialog.Builder(Expsetup.this).setTitle("Install ramhack").setMessage(
-					"The \"ramhack\" kernel will allocate ~10 MB of RAM currently assigned to "
-						+ "video memory to the main memory pool. This may improve performance "
-						+ "under normal circumstances at the cost of 3D performance.\n\n"
-						+ "This operation cannot be undone except by reflashing the "
-						+ "expansion pack.").setPositiveButton("Install ramhack",
-					new OnClickListener() {
-						@Override
-						public void onClick(final DialogInterface dialog, final int which) {
-							((ViewSwitcher) dp.getView().findViewById(R.id.ViewSwitcher))
-								.showNext();
-							new Downloader((ProgressBar) dp.getView()
-								.findViewById(R.id.ProgressBar)) {
-								@Override
-								protected void onPostExecute(final Void result) {
-									sendCommand(
-										"echo 'boot-recovery' > /cache/recovery/command && "
-											+ "echo '--update_package=SDCARD:"
-											+ new File(dp.getDestination()).getName()
-											+ "' >> /cache/recovery/command", "preparing kernel",
-										getString(R.string.reboot_recovery_required));
-									super.onPostExecute(result);
-								}
-							}.execute((Void) null);
-							isDownloaded = true;
-						}
-					}).setNegativeButton("Do not install", null).show();
+				new AlertDialog.Builder(Expsetup.this).setTitle(install_title).setMessage(
+					install_msg).setPositiveButton(install_title, new OnClickListener() {
+					@Override
+					public void onClick(final DialogInterface dialog, final int which) {
+						((ViewSwitcher) dp.getView().findViewById(R.id.ViewSwitcher)).showNext();
+						new Downloader((ProgressBar) dp.getView().findViewById(R.id.ProgressBar)) {
+							@Override
+							protected void onPostExecute(final Void result) {
+								sendCommand("echo 'boot-recovery' > /cache/recovery/command && "
+									+ "echo '--update_package=SDCARD:"
+									+ new File(dp.getDestination()).getName()
+									+ "' >> /cache/recovery/command", "preparing kernel",
+									getString(R.string.reboot_recovery_required));
+								super.onPostExecute(result);
+							}
+						}.execute((Void) null);
+						isDownloaded = true;
+					}
+				}).setNegativeButton("Do not install", null).show();
 				return true;
 			} else {
-				new AlertDialog.Builder(Expsetup.this).setTitle("Ramhack removal").setMessage(
-					"To remove the ramhack kernel, you must manually "
-						+ "reflash the expansion pack from recovery, "
-						+ "reboot to Android, then flash themes, "
-						+ "etc. as desired.  Reboot to recovery now?").setPositiveButton(
-					"Reboot to recovery", new OnClickListener() {
-						@Override
-						public void onClick(final DialogInterface dialog, final int which) {
-							sendCommand(getString(R.string.reboot_recovery), "rebooting", "none");
-						}
-					}).setNegativeButton("Return", null).show();
+				new AlertDialog.Builder(Expsetup.this).setTitle(remove_title)
+					.setMessage(remove_msg).setPositiveButton("Reboot to recovery",
+						new OnClickListener() {
+							@Override
+							public void onClick(final DialogInterface dialog, final int which) {
+								sendCommand(getString(R.string.reboot_recovery), "rebooting",
+									"none");
+							}
+						}).setNegativeButton("Return", null).show();
 			}
 			return true;
 		}
