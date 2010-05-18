@@ -39,6 +39,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -72,6 +73,16 @@ public class Expsetup extends PreferenceActivity {
 		settings = getSharedPreferences("serverState", MODE_PRIVATE);
 		addPreferencesFromResource(R.xml.preferences);
 		final Map<String, String> config = getCurrentConfig();
+
+		// Tack version number on to titlebar at top level
+		try {
+			this.setTitle(getTitle() + " v"
+				+ getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		} catch (final NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		String ramhack_file;
 		// ROM-specific settings
 		if (config.get("GLB_EP_VERSION_EPDATA").contains("-TMO")) {
